@@ -1,0 +1,217 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+% The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+\begin{document}
+
+\title{Metodologia para mitigar o viés de similaridade nas bases de dados de MFPT e Paderborn\\
+% {\footnotesize \textsuperscript{*}Note: Sub-titles are not captured in Xplore and
+% should not be used}
+
+}
+
+\author{\IEEEauthorblockN{1\textsuperscript{st} Lucio Venturim}
+\IEEEauthorblockA{\textit{dept. name of organization (of Aff.)} \\
+\textit{name of organization (of Aff.)}\\
+Serra, Brazil \\
+lucioventurim@gmail.com}
+\and
+\IEEEauthorblockN{2\textsuperscript{nd} Francisco Boldt}
+\IEEEauthorblockA{\textit{dept. name of organization (of Aff.)} \\
+\textit{name of organization (of Aff.)}\\
+Serra, Brazil \\
+email address or ORCID}
+\and
+\IEEEauthorblockN{3\textsuperscript{rd} Given Name Surname}
+\IEEEauthorblockA{\textit{dept. name of organization (of Aff.)} \\
+\textit{name of organization (of Aff.)}\\
+City, Country \\
+email address or ORCID}
+\and
+\IEEEauthorblockN{4\textsuperscript{th} Given Name Surname}
+\IEEEauthorblockA{\textit{dept. name of organization (of Aff.)} \\
+\textit{name of organization (of Aff.)}\\
+City, Country \\
+email address or ORCID}
+\and
+\IEEEauthorblockN{5\textsuperscript{th} Given Name Surname}
+\IEEEauthorblockA{\textit{dept. name of organization (of Aff.)} \\
+\textit{name of organization (of Aff.)}\\
+City, Country \\
+email address or ORCID}
+\and
+\IEEEauthorblockN{6\textsuperscript{th} Given Name Surname}
+\IEEEauthorblockA{\textit{dept. name of organization (of Aff.)} \\
+\textit{name of organization (of Aff.)}\\
+City, Country \\
+email address or ORCID}
+}
+
+\maketitle
+
+\begin{abstract}
+Este artigo propõe uma metodologia para mitigar o viés de similaridade das bases Paderborn e MFPT de acordo com a separação dos dados para treinamento, validação e teste.
+\end{abstract}
+
+\begin{IEEEkeywords}
+bearing, bias
+\end{IEEEkeywords}
+
+\section{Introduction}
+Os processos industriais são constantemente monitorados para o fornecimento de produtos de melhor qualidade e com menores taxas de rejeição.
+Porém, durante a produção podem ocorrer falhas durante os processos, que são definidas como um desvio não permitido de ao menos uma variável ou propriedade característica do sistema \cite{b1}.
+Os rolamentos são indispensáveis para máquinas com partes rotativas e o monitoramento de falhas nesses componentes é importante, uma vez que 40 a 50\% das falhas de equipamentos que os possuem são causadas por falhas neles \cite{b2}.
+
+O monitoramento de processos industriais pode ser dividido em quatro etapas: detecção de falhas, identificação de falhas, diagnóstico de falhas e processo de recuperação \cite{b3}.
+Dentre essas etapas, o diagnóstico de falhas pode ser aplicado através de sistemas baseados em softwares, que são considerados ferramentas essenciais para garantir a segurança e manutenção de processos dinâmicos \cite{b3}.
+Esses sistemas podem utilizar técnicas de aprendizado de máquina, que usam os sinais coletados de determinado equipamento para treinar e testar classificadores, e então identificar e diagnosticar as falhas \cite{b4}.
+
+O desenvolvimento de modelos para classificação de falhas em rolamento depende da utilização de bases de dados com sinais coletados durante o funcionamento de um equipamento, que são separados em parte para treinamento e validação e parte para testes, de onde são extraídos os resultados dos experimentos.
+Porém, dependendo das escolhas durante a elaboração do modelo, os experimentos podem trazer uma avaliação super otimista, onde os resultados foram adequados apenas para a configuração utilizada.
+Desta forma, quando a técnica testada for aplicada na prática, possivelmente não trará resultados similares aos obtidos durante o desenvolvimento.
+Uma avaliação realista deve levar em consideração a capacidade de generalização do modelo elaborado.
+Assim o classificador treinado deve ser capaz de reconhecer o máximo de condições possíveis, mesmo quando há variações em suas condições de trabalho \cite{b4}.
+
+Uma característica que influencia na capacidade de generalização de um algoritmo, de acordo com \cite{b4}, é o viés de similaridade.
+O viés de similaridade ocorre quando os dados de uma mesma condição que são utilizados para o treinamento e teste do modelo têm características muito similares, tornando a tarefa de classificação relativamente trivial.
+Amostras de uma mesma condição e de uma mesma aquisição, por exemplo, tipicamente são muito similares \cite{b4}.
+Em \cite{b4}, são realizados experimentos com a base de dados fornecida pela Case Western Reserve University (CWRU) com diferentes formas de separação dos dados a fim de verificar a questão do viés de similaridade.
+O artigo apresenta uma extensa lista de trabalhos publicados não considera esse viés no desenvolvimento de seus modelos.
+
+As bases de dados disponibilizadas pela Machinery Failure Prevention Technology Society (MFPT) e pela Konstruktions und Antriebstechnik da Universidade de Paderborn (PADERBORN) são utilizadas para o desenvolvimento de modelos de classificação de falhas em diversos artigos.
+A tabela XXX apresenta trabalhos publicados com detalhes sobre a forma de separação dos dados para o treinamento e testes dos modelos.
+A questão do viés de similaridade não é considerada na elaboração dos algoritmos de classificação de falhas dos artigos listados.
+
+Em \cite{b5}, que realiza um estudo com a aplicação de métodos de aprendizado profundo em 9 bases de dados de falhas de rolamentos, incluindo a base MFPT e a Paderborn, são descritas duas formas de separação dos dados em treinamento e testes.
+Uma é a separação randômica dos dados, onde as amostras são escolhidas aleatoriamente para treino e teste.
+Outra é a separação pelo tempo, onde um percentual ou duração pré-definida do sinal é escolhido para treino e teste.
+Em ambos os casos, são utilizadas amostras da mesma aquisição para treino e teste, e o viés de similaridade pode ocorrer.
+
+Dentre os artigos que utilizam a base MFPT, em \cite{b6}, que propõe uma lightweight convolutional neural network (LCNN), é realizada a separação dos dados aleatoriamente com 70\% para treinamento, 10\% para validação e 20\% para teste, também utilizando amostras de mesma aquisição em todos.
+\cite{b7} propõe uma metologia baseada em deep learning para aprendizado automático de características dos dados, onde a separação dos dados também foi realizada aleatoriamente com 70\% para treinamento e 30\% para teste, com amostras de mesma aquisição em ambos.
+Muitos trabalhos não informam a forma de separação de dados, como em \cite{b8}, que propõe uma nova snapshot ensemble convolutional neural network (SECNN), e em \cite{b9}, que avalia o uso de convolutional neural nets (CNN) diretamente nos sinais.
+
+Para os artigos onde a base Paderborn é utilizada, alguns utilizam dados de mesma aquisição tanto para o treinamento como para o teste como já citado em \cite{b5}.
+Entre eles \cite{b10}, que propõe uma deep residual network (ResNet) baseada em input feature mappings (IFMs).
+Outros artigos realizam experimentos onde não são utilizados dados de mesma aquisição para treino e teste simultaneamente, como em \cite{b11}, que propõe uma deep inception net com atrous convolution (ACDIN) para tratar do problema de utilizar dados de danos artificiais com mais confiabilidade, e em \cite{b12}, que propõe uma nova capsule network.
+Para esses casos, a separação não considerando a aquisição não foi com o objetivo explícito de evitar algum viés de similaridade.
+Porém, para a base PADERBORN, o viés de similaridade pode ocorrer não somente pela utilização de mesma aquisição, mas também de outras formas, como dados de mesmo rolamento com mesma carga, ou até de mesmo rolamento, a ser confirmado com experimentos.
+
+Uma forma de mitigar o viés de similaridade, e aumentar a capacidade de generalização de um modelo de classificação de falhas em rolamentos, é a não utilização de amostras de mesma condição e aquisição no treinamento e teste.
+Para isso, deve-se definir grupos diferentes para cada aquisição e/ou outras características, para que os dados de tais grupos sejam utilizados somente para treinamento ou para testes.
+
+A seção 2 apresenta as bases de dados a serem analisadas.
+A seção 3 descreve a metodologia utilizada para a análise do viés de similaridade das bases MFPT e Paderborn.
+A seção 4 apresenta e a seção 5 traz uma análise dos resultados obtidos.
+Por fim a seção 6 traz a conclusão do artigo e discute possibilidades para trabalhos futuros.
+
+\begin{figure}[htbp]
+\centerline{\includegraphics{fig1.png}}
+\caption{Principais Elementos de um Rolamento.}
+\label{fig1}
+\end{figure}
+
+\section{Bases de Dados}
+
+Para que a análise do viés de similaridade seja possível, é necessário que as bases de dados escolhidas possuam diferentes seções de aquisição para as diferentes condições presentes.
+Para esse artigo foram utilizadas as bases MFPT e PADERBORN, que possuem essa característica.
+
+\subsection{MFPT}
+
+A base de dados referida como MFPT foi disponibilizada publicamente pela \textit{Machine Failure Prevention Technology Society} (MFPT).
+Ela foi desenvolvida em conjunto com o trabalho \cite{b13}, que analisa o algoritmo de envelopamento e descreve técnicas para seu desenvolvimento, além de prover métodos para a determinação de uma janela otimizada para a análise dos envelopes.
+
+A aquisição dos dados de vibração foi realizada com um aparato utilizando rolamentos NICE.
+Três seções foram realizadas em condições normais, com uma carga de 270 lbs e uma frequência de aquisição de 97.656Hz por 6 segundos.
+Dez seções onde os rolamentos apresentavam falha no anel externo foram executadas, três delas com uma carga de 270 lbs, também com uma frequência de aquisição de 97.656Hz por 6 segundos.
+As outras sete foram realizadas com cargas de 25, 50, 100, 150, 200, 250 e 300 lbs, respectivamente, com uma taxa de amostragem de 48.828Hz por 3 segundos.
+Sete seções foram realizadas com rolamentos com falhas no anel interno, com uma frequência de aquisição de 48.828Hz durante 3 segundos e cargas de 0, 50, 100, 150, 200, 250 e 300 lbs.
+Além dos dados citados, são fornecidos arquivos de análises dos dados e três aquisições de situações reais (de uma turbina de vento, de uma bomba de petróleo e de um globo).
+Os arquivos são disponibilizados no formato Matlab (.mat), contendo a carga, a rotação, a frequência de amostragem e um vetor com os dados de vibração.
+
+\subsection{PADERBORN}
+
+A base de dados referida como PADERBORN foi gerada e disponibilizada publicamente pela \textit{Chair of Design and Drive Technology} da Universidade Paderborn.
+A base foi elaborada com o intuito de ser um \textit{benchmark} para monitoramento de condições de rolamentos no artigo \cite{b14}.
+O artigo descreve detalhadamente as falhas encontradas nos rolamentos e realizados experimentos de classificação para o diagnóstico das mesmas.
+
+O aparato para aquisição dos dados consiste de um motor elétrico, um medidor de torque, um módulo para teste de rolamentos (onde os rolamentos com diferentes condições são acopladas para geração dos dados), um volante de inércia e um motor de carga.
+
+No total, foram realizados experimentos com 32 rolamentos diferentes, onde 12 possuíam danos artificiais, 14 com danos obtidos em testes de tempo de duração, e 6 com rolamentos em condições normais com tempos de duração diferentes.
+Para cada rolamento, foram registrados dados para 4 diferentes condições de operação, com diferentes cargas e rotações, conforme tabela XXXX.
+20 seções de aquisição de 4 segundos cada para cada configuração foram salvas em arquivos Matlab (.mat).
+
+
+\section{Metodologia}
+
+Descrever a metodologia a ser utilizada.
+
+\section{Experimentos}
+
+Descrever os resultados obtidos para os experimentos, com as diferentes divisões entre treinamento, validação e teste.
+
+\section{Comparação de Resultados}
+
+Apresentar comparativo dos resultados a fim de corroborar o viés de similaridade.
+
+\section{Conclusões}
+
+Conclusão.
+
+
+
+\begin{table}[htbp]
+\caption{Table Type Styles}
+\begin{center}
+\begin{tabular}{|c|c|c|c|}
+\hline
+\textbf{Table}&\multicolumn{3}{|c|}{\textbf{Table Column Head}} \\
+\cline{2-4} 
+\textbf{Head} & \textbf{\textit{Table column subhead}}& \textbf{\textit{Subhead}}& \textbf{\textit{Subhead}} \\
+\hline
+copy& More table copy$^{\mathrm{a}}$& &  \\
+\hline
+\multicolumn{4}{l}{$^{\mathrm{a}}$Sample of a Table footnote.}
+\end{tabular}
+\label{tab1}
+\end{center}
+\end{table}
+
+
+
+
+
+\section*{Acknowledgment}
+
+The preferred spelling of the word ``acknowledgment'' in America is without 
+an ``e'' after the ``g''. Avoid the stilted expression ``one of us (R. B. 
+G.) thanks $\ldots$''. Instead, try ``R. B. G. thanks$\ldots$''. Put sponsor 
+acknowledgments in the unnumbered footnote on the first page.
+
+
+\begin{thebibliography}{00}
+\bibitem{b1} Isermann, Rolf, and Peter Balle. "Trends in the application of model-based fault detection and diagnosis of technical processes." Control engineering practice 5.5 (1997): 709-719.
+\bibitem{b2} Nandi, Subhasis, Hamid A. Toliyat, and Xiaodong Li. "Condition monitoring and fault diagnosis of electrical motors—A review." IEEE transactions on energy conversion 20.4 (2005): 719-729.
+\bibitem{b3} Chiang, Leo H., Evan L. Russell, and Richard D. Braatz. Fault detection and diagnosis in industrial systems. Springer Science and Business Media, 2000.
+\bibitem{b4} Rauber, Thomas Walter, et al. "An experimental methodology to evaluate machine learning methods for fault diagnosis based on vibration signals." Expert Systems with Applications (2020): 114022.
+\bibitem{b5} Zhao, Zhibin, et al. "Deep learning algorithms for rotating machinery intelligent diagnosis: An open source benchmark study." ISA transactions 107 (2020): 224-255.
+\bibitem{b6} Wang, Yanxin, et al. "Bearing intelligent fault diagnosis in the industrial Internet of Things context: A lightweight convolutional neural network." IEEE Access 8 (2020): 87329-87340.
+\bibitem{b7} Verstraete, David, et al. "Deep learning enabled fault diagnosis using time-frequency image analysis of rolling element bearings." Shock and Vibration 2017 (2017).
+\bibitem{b8} Wen, Long, Liang Gao, and Xinyu Li. "A new snapshot ensemble convolutional neural network for fault diagnosis." Ieee Access 7 (2019): 32037-32047.
+\bibitem{b9} Lee, Dean, et al. "Convolutional neural net and bearing fault analysis." Proceedings of the International Conference on Data Science (ICDATA). The Steering Committee of The World Congress in Computer Science, Computer Engineering and Applied Computing (WorldComp), 2016.
+\bibitem{b10} Hou, Liangsheng, et al. "Input Feature Mappings-Based Deep Residual Networks for Fault Diagnosis of Rolling Element Bearing With Complicated Dataset." IEEE Access 8 (2020): 180967-180976.
+\bibitem{b11} Chen, Yuanhang, et al. "ACDIN: Bridging the gap between artificial and real bearing damages for bearing fault diagnosis." Neurocomputing 294 (2018): 61-71.
+\bibitem{b12} Zhu, Zhiyu, et al. "A convolutional neural network based on a capsule network with strong generalization for bearing fault diagnosis." Neurocomputing 323 (2019): 62-75.
+\bibitem{b13} Bechhoefer, Eric. "A quick introduction to bearing envelope analysis." Green Power Monit. Syst (2016).
+\bibitem{b14} Lessmeier, Christian, et al. "Condition monitoring of bearing damage in electromechanical drive systems by using motor current signals of electric motors: A benchmark data set for data-driven classification." Proceedings of the European conference of the prognostics and health management society. 2016.
+\end{thebibliography}
+\vspace{12pt}
+
+\end{document}
