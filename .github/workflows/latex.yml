@@ -9,8 +9,8 @@ jobs:
       - name: Compile LaTeX document
         uses: xu-cheng/latex-action@v2
         with:
-          root_file: main.tex
-      - name: Commit artigo/main.pdf
+          root_file: artigo/main.tex
+      - name: Commit main.pdf
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
