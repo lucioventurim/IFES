@@ -61,8 +61,6 @@ class Experimenter(Database_Experimenter):
         self.signal_gr.append(key)
         self.signal_or.append(key[0])
 
-    print(len(set(self.signal_gr)))
-
 
   def perform(self, clfs, scoring, verbose=0):
     
@@ -74,11 +72,6 @@ class Experimenter(Database_Experimenter):
 
       print("---Kfold---")
       estimator_kfold = estimator
-
-      #scores = cross_val_score(estimator_kfold, self.signal_dt, np.array(self.signal_or), cv=2)
-
-      #print("test_accuracy: ", scores, " Mean:", format(scores.mean(), '.2f'), "Std:", format(scores.std(), '.2f'))
-
 
       score = cross_validate(estimator_kfold, self.signal_dt, np.array(self.signal_or),
                             scoring=scoring, cv=4, verbose=verbose)#, error_score='raise')
@@ -92,33 +85,3 @@ class Experimenter(Database_Experimenter):
 
       for metric, s in score.items():
         print(metric, ' \t', s, ' Mean: ', format(s.mean(), '.2f'), ' Std: ', format(s.std(), '.2f'))
-
-      print("---Train Test Split---")
-      estimator_ttsplit = estimator
-      X_train, X_test, y_train, y_test = train_test_split(self.signal_dt, self.signal_or, test_size = 0.3,
-                                                          random_state = 42)
-
-      estimator_ttsplit.fit(X_train, y_train)
-      pred = estimator_ttsplit.predict(X_test)
-
-      print("test_accuracy: ", format(accuracy_score(y_test, pred), '.2f'))
-      print("test_f1_macro: ", format(f1_score(y_test, pred, average='macro'), '.2f'))
-
-      print("---Train Test Split - Group---")
-      estimator_ttsplitgroup = estimator
-      train_inds, test_inds = next(GroupShuffleSplit(test_size=.30,
-                                                     n_splits=2,
-                                                     random_state=42).split(self.signal_dt,
-                                                                            groups=self.signal_gr))
-
-      X_train = self.signal_dt[train_inds]
-      X_test = self.signal_dt[test_inds]
-      y_train = np.array(self.signal_or)[train_inds]
-      y_test = np.array(self.signal_or)[test_inds]
-
-
-      estimator_ttsplitgroup.fit(X_train, y_train)
-      pred = estimator_ttsplitgroup.predict(X_test)
-
-      print("test_accuracy: ", format(accuracy_score(y_test, pred), '.2f'))
-      print("test_f1_macro: ", format(f1_score(y_test, pred, average='macro'), '.2f'))
