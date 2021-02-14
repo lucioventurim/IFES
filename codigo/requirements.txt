@@ -1,15 +1,5 @@
-brotlipy==0.7.0
-conda==4.9.2
-conda-package-handling==1.7.2
-keras==2.4.3
 pip-chill==1.0.1
-pyopenssl==19.1.0
-pysocks==1.7.1
 pyunpack==0.2.2
-pywin32==227
 scikit-image==0.18.1
 sklearn==0.0
 tensorflow==2.4.1
-tqdm==4.51.0
-win-inet-pton==1.1.0
-wincertstore==0.2
