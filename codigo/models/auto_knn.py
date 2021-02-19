@@ -7,7 +7,7 @@ from transformers.statistical import Statistical
 from sklearn.neighbors import KNeighborsClassifier
 
 
-def clf_knn():
+def instantiate_auto_knn():
 
     knn = Pipeline([
                     ('FeatureExtraction', Statistical()),
