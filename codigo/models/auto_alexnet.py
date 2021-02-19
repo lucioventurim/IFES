@@ -38,7 +38,7 @@ def create_model():
     return model
 
 
-def clf_alexnet():
+def instantiate_auto_alexnet():
 
     alexnet = keras.wrappers.scikit_learn.KerasClassifier(build_fn=create_model, verbose=0)
 
