@@ -7,7 +7,7 @@ from sklearn.ensemble import RandomForestClassifier
 from transformers.statistical import Statistical
 
 
-def clf_rf():
+def instantiate_auto_random_forest():
 
     rf = Pipeline([
         ('FeatureExtraction', Statistical()),
