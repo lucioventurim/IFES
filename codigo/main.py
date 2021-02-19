@@ -1,7 +1,7 @@
-from mfpt import MFPT
-from paderborn import Paderborn
-from experimenter import Experimenter
-from classifiers import Classifiers, Scoring
+from datasets.mfpt import MFPT
+from datasets.paderborn import Paderborn
+from perform.experimenter import Experimenter
+from models.classifiers import Classifiers, Scoring
 
 
 def main():
