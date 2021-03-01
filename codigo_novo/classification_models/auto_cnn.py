@@ -6,31 +6,25 @@ from tensorflow import keras
 
 # Function to create model, required for KerasClassifier
 def create_model():
-    model = keras.models.Sequential([
-        keras.layers.InputLayer(input_shape=(664, 8192, 1)),
-        keras.layers.Conv1D(32, 32, padding='valid'),
-        keras.layers.Activation('relu'),
-        keras.layers.GlobalMaxPooling1D(),
-        #keras.layers.MaxPooling1D(pool_size=8),
-        keras.layers.Conv1D(32, 32, padding='valid'),
-        keras.layers.Activation('relu'),
-        keras.layers.GlobalMaxPooling1D(),
-        #keras.layers.MaxPooling1D(pool_size=8),
-        #keras.layers.Flatten(),
-        keras.layers.Dense(64),
-        keras.layers.Activation('relu'),
-        keras.layers.Dropout(0.25),
-        keras.layers.Dense(3),
-        keras.layers.Activation('softmax')
-    ])
+
+    model_m = keras.Sequential()
+    model_m.add(keras.layers.Reshape((8192, 1), input_shape=(8192,1)))
+    model_m.add(keras.layers.Conv1D(100, 10, activation='relu', input_shape=(8192, 1)))
+    model_m.add(keras.layers.Conv1D(100, 10, activation='relu'))
+    model_m.add(keras.layers.MaxPooling1D(3))
+    model_m.add(keras.layers.Conv1D(160, 10, activation='relu'))
+    model_m.add(keras.layers.Conv1D(160, 10, activation='relu'))
+    model_m.add(keras.layers.GlobalAveragePooling1D())
+    model_m.add(keras.layers.Dropout(0.5))
+    model_m.add(keras.layers.Dense(1, activation='softmax'))
+    print(model_m.summary())
 
     loss = 'binary_crossentropy'
     optimizer = 'adam'
     metrics = ['accuracy']
-    model.compile(optimizer=optimizer, loss=loss, metrics=metrics)
+    model_m.compile(optimizer=optimizer, loss=loss, metrics=metrics)
 
-    return model
-
+    return model_m
 
 def instantiate_auto_cnn():
 
