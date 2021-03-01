@@ -16,8 +16,8 @@ def instantiate_auto_random_forest():
     ])
 
     parameters_rf = {
-        "rf__max_features": [1, 5, 10],
-        "rf__n_estimators": [10, 100, 200],
+        "rf__max_features": [1, 2, 5, 7, 10],
+        "rf__n_estimators": [50, 100, 200],
     }
 
     rf = GridSearchCV(rf, parameters_rf)
