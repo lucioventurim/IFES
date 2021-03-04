@@ -1,6 +1,0 @@
-patool==1.12
-pip-chill==1.0.1
-pyunpack==0.2.2
-scikit-image==0.18.1
-sklearn==0.0
-tensorflow==2.4.1
