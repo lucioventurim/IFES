@@ -24,7 +24,7 @@ class MFPT():
   url : str
     website from the raw files are downloaded
   conditions : dict
-    the keys represent the condition code and the values the number of acquisitions and its lenght
+    the keys represent the condition code and the values the number of acquisitions and its lengh
   files : dict
     the keys represent the conditions_acquisition and the values are the files names
 
@@ -127,7 +127,7 @@ class MFPT():
 
   def kfold(self):
 
-    X = []
+    X = np.empty((0,self.sample_size))
     y = []
 
     for key, acquisition in self.load_acquisitions():
@@ -135,25 +135,25 @@ class MFPT():
       samples_acquisition = acquisition_size // self.sample_size
       for i in range(samples_acquisition):
         sample = acquisition[(i * self.sample_size):((i + 1) * self.sample_size)]
-        X.append(sample)
-        y.append(key[0])
+        X = np.append(X, np.array([sample]), axis=0)
+        y = np.append(y, key[0])
 
     #print(len(X))
     kf = KFold(n_splits=3)
 
     for train_index, test_index in kf.split(X):
       #print("Train Index: ", train_index, "Test Index: ", test_index)
-      X_train = [X[i] for i in train_index]
-      X_test = [X[i] for i in test_index]
-      y_train = [y[i] for i in train_index]
-      y_test = [y[i] for i in test_index]
+      X_train = X[train_index]
+      X_test = X[test_index]
+      y_train = y[train_index]
+      y_test = y[test_index]
 
       yield X_train, y_train, X_test, y_test
 
 
   def stratifiedkfold(self):
 
-    X = []
+    X = np.empty((0,self.sample_size))
     y = []
 
     for key, acquisition in self.load_acquisitions():
@@ -161,18 +161,18 @@ class MFPT():
       samples_acquisition = acquisition_size // self.sample_size
       for i in range(samples_acquisition):
         sample = acquisition[(i * self.sample_size):((i + 1) * self.sample_size)]
-        X.append(sample)
-        y.append(key[0])
+        X = np.append(X, np.array([sample]), axis=0)
+        y = np.append(y, key[0])
 
-    # print(len(X))
+    #print(X)
     kf = StratifiedKFold(n_splits=3)
 
     for train_index, test_index in kf.split(X, y):
-      # print("Train Index: ", train_index, "Test Index: ", test_index)
-      X_train = [X[i] for i in train_index]
-      X_test = [X[i] for i in test_index]
-      y_train = [y[i] for i in train_index]
-      y_test = [y[i] for i in test_index]
+      #print("Train Index: ", train_index, "Test Index: ", test_index)
+      X_train = X[train_index]
+      X_test = X[test_index]
+      y_train = y[train_index]
+      y_test = y[test_index]
 
       yield X_train, y_train, X_test, y_test
 
@@ -243,73 +243,3 @@ class MFPT():
           counter = counter + 1
 
       yield X_train, y_train, X_test, y_test
-
-
-  def stratifiedkfold_custom(self):
-
-    # Define folds index by samples
-    samples_index = [0]
-    final_sample = 0
-    for condition in self.conditions.items():
-      n_samples = 0
-      for acquisitions_details in condition[1]:
-        samples_acquisition = acquisitions_details[1] // self.sample_size
-        n_samples = n_samples + acquisitions_details[0] * samples_acquisition
-      fold_size = n_samples // self.n_folds
-      for i in range(self.n_folds-1):
-        samples_index.append(samples_index[-1]+fold_size)
-      final_sample = final_sample + n_samples
-      samples_index.append(final_sample)
-
-    #print(samples_index)
-
-    # Define folds split
-    folds_split = []
-    for i in range(self.n_folds):
-      splits = [0]*self.n_folds
-      splits[i] = 1
-      folds_split.append(splits)
-
-    #print(folds_split)
-
-    folds = []
-    for split in folds_split:
-      fold_dict = {}
-      for k in range(len(samples_index) - 1):
-        pos = k % self.n_folds
-        if split[pos] == 1:
-          fold_dict[(samples_index[k], samples_index[k+1])] = "test"
-        else:
-          fold_dict[(samples_index[k], samples_index[k+1])] = "train"
-      folds.append(fold_dict)
-
-    #print(folds)
-
-    # Yield folds
-    for f in folds:
-      print("Folds by samples index: ", f)
-      X_train = []
-      y_train = []
-      X_test = []
-      y_test = []
-
-      counter = 0
-      for key, acquisition in self.load_acquisitions():
-        acquisition_size = len(acquisition)
-        samples_acquisition_fold = acquisition_size // self.sample_size
-        for i in range(samples_acquisition_fold):
-          sample = acquisition[(i * self.sample_size):((i + 1) * self.sample_size)]
-          res = ""
-          for (k1, k2) in f:
-            if (k1 <= counter and k2 > counter):
-              res = f[(k1, k2)]
-          if res == "train":
-            X_train.append(sample)
-            y_train.append(key[0])
-          else:
-            X_test.append(sample)
-            y_test.append(key[0])
-          counter = counter + 1
-
-      yield X_train, y_train, X_test, y_test
-
