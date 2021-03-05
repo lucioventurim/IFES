@@ -4,57 +4,12 @@ Class definition of Paderborn Bearing dataset download and acquisitions extracti
 
 import urllib.request
 import scipy.io
+import numpy as np
 import os
 from sklearn.model_selection import KFold, StratifiedKFold
 
 # Unpack Tools
 from pyunpack import Archive
-
-
-def files_debug(dirfiles):
-    """
-    Associate each Matlab file name to a bearing condition in a Python dictionary.
-    The dictionary keys identify the conditions.
-
-    NOTE: Used only for debug. Use "debug=1" on initialization.
-    """
-
-    files_path = {}
-
-    normal_folder = ["K002"]
-    OR_folder = ["KA01"]
-    IR_folder = ["KI01"]
-    MIX_folder = ["KB23"]  # VERIFICAR
-
-    settings_files = ["N15_M07_F10_", "N09_M07_F10_", "N15_M01_F10_", "N15_M07_F04_"]
-
-    n = 20
-
-    # Normal
-    for folder in normal_folder:
-        for idx, setting in enumerate(settings_files):
-            for i in range(1, n + 1):
-                key = "Normal_" + folder + "_" + str(idx) + "_" + str(i)
-                files_path[key] = os.path.join(dirfiles, folder, setting + folder +
-                                               "_" + str(i) + ".mat")
-
-    # OR
-    for folder in OR_folder:
-        for idx, setting in enumerate(settings_files):
-            for i in range(1, n + 1):
-                key = "OR_" + folder + "_" + str(idx) + "_" + str(i)
-                files_path[key] = os.path.join(dirfiles, folder, setting + folder +
-                                               "_" + str(i) + ".mat")
-
-    # IR
-    for folder in IR_folder:
-        for idx, setting in enumerate(settings_files):
-            for i in range(1, n + 1):
-                key = "IR_" + folder + "_" + str(idx) + "_" + str(i)
-                files_path[key] = os.path.join(dirfiles, folder, setting + folder +
-                                               "_" + str(i) + ".mat")
-
-    return files_path
 
 
 class Paderborn():
@@ -84,12 +39,17 @@ class Paderborn():
         self.rawfilesdir = "paderborn_raw"
         self.dirdest = "paderborn_seg"
         self.url = "http://groups.uni-paderborn.de/kat/BearingDataCenter/"
-        self.conditions = {"N": "normal",
-                           "I": "inner",
-                           "O": "outer"}
         self.debug = debug
+        if debug == 0:
+            self.conditions = {"N": "normal",
+                               "I": "inner",
+                               "O": "outer"}
+        else:
+            self.conditions = {"N": [(20, 256000)],
+                               "O": [(20, 256000)],
+                               "I": [(20, 256000)]}
 
-        self.n_folds = 3
+        self.n_folds = 5
         self.sample_size = 8192
         self.n_acquisitions = 20
 
@@ -122,19 +82,25 @@ class Paderborn():
         """
         files_path = {}
 
-        # normal_folder = ["K001", "K002", "K003", "K004", "K005", "K006"]
-        normal_folder = ["K001", "K002", "K003"]
-        # OR_folder = ["KA01", "KA03", "KA04", "KA05", "KA06", "KA07", "KA08",
-        #            "KA09", "KA15", "KA16", "KA22", "KA30"]
-        OR_folder = ["KA01", "KA03", "KA04"]
-        # IR_folder = ["KI01", "KI03", "KI05", "KI07", "KI08", "KI16", "KI17",
-        #            "KI18", "KI21"]
-        IR_folder = ["KI01", "KI03", "KI05"]
-        MIX_folder = ["KB23", "KB24", "KB27", "KI14"]  # VERIFICAR
+        if debug == 0:
+            normal_folder = ["K001", "K002", "K003", "K004", "K005", "K006"]
+            OR_folder = ["KA01", "KA03", "KA04", "KA05", "KA06", "KA07", "KA08",
+                        "KA09", "KA15", "KA16", "KA22", "KA30"]
+            IR_folder = ["KI01", "KI03", "KI05", "KI07", "KI08", "KI16", "KI17",
+                        "KI18", "KI21"]
+            MIX_folder = ["KB23", "KB24", "KB27", "KI14"]  # VERIFICAR
+
+        else:
+            normal_folder = ["K002"]
+            OR_folder = ["KA01"]
+            IR_folder = ["KI01"]
 
         settings_files = ["N15_M07_F10_", "N09_M07_F10_", "N15_M01_F10_", "N15_M07_F04_"]
 
-        n = 20
+        if debug == 0:
+            n = 20
+        else:
+            n = 5
 
         # Normal
         for folder in normal_folder:
@@ -161,6 +127,7 @@ class Paderborn():
                                                    "_" + str(i) + ".mat")
 
         self.files = files_path
+        print(self.files)
 
     def download(self):
         """
@@ -201,14 +168,6 @@ class Paderborn():
                     Archive(file_name).extractall(dirname)
                     print(i)
 
-        if self.debug == 0:
-            files_path = self.files
-        else:
-            files_path = files_debug(self.rawfilesdir)
-
-        #print(files_path)
-        self.files = files_path
-
     def load_acquisitions(self):
         """
         Extracts the acquisitions of each file in the dictionary files_names.
@@ -216,18 +175,16 @@ class Paderborn():
 
         for key in self.files:
             if key != 'OR_KA08_2_2':
-                #print(self.files[key])
                 matlab_file = scipy.io.loadmat(self.files[key])
                 if len(self.files[key]) > 41:
                     vibration_data = matlab_file[self.files[key][19:38]]['Y'][0][0][0][6][2]
                 else:
                     vibration_data = matlab_file[self.files[key][19:37]]['Y'][0][0][0][6][2]
-
+            #print(len(vibration_data[0]))
             yield key, vibration_data[0]
 
     def kfold(self):
-
-        X = []
+        X = np.empty((0,self.sample_size))
         y = []
 
         for key, acquisition in self.load_acquisitions():
@@ -235,23 +192,23 @@ class Paderborn():
             samples_acquisition = acquisition_size // self.sample_size
             for i in range(samples_acquisition):
                 sample = acquisition[(i * self.sample_size):((i + 1) * self.sample_size)]
-                X.append(sample)
-                y.append(key[0])
+                X = np.append(X, np.array([sample]), axis=0)
+                y = np.append(y, key[0])
 
-        kf = KFold(n_splits=3)
+        kf = KFold(n_splits=self.n_folds)
 
         for train_index, test_index in kf.split(X):
-            print("Train Index: ", train_index, "Test Index: ", test_index)
-            X_train = [X[i] for i in train_index]
-            X_test = [X[i] for i in test_index]
-            y_train = [y[i] for i in train_index]
-            y_test = [y[i] for i in test_index]
+            #print("Train Index: ", train_index, "Test Index: ", test_index)
+            X_train = X[train_index]
+            X_test = X[test_index]
+            y_train = y[train_index]
+            y_test = y[test_index]
 
             yield X_train, y_train, X_test, y_test
 
     def stratifiedkfold(self):
 
-        X = []
+        X = np.empty((0,self.sample_size))
         y = []
 
         for key, acquisition in self.load_acquisitions():
@@ -259,16 +216,84 @@ class Paderborn():
             samples_acquisition = acquisition_size // self.sample_size
             for i in range(samples_acquisition):
                 sample = acquisition[(i * self.sample_size):((i + 1) * self.sample_size)]
-                X.append(sample)
-                y.append(key[0])
+                X = np.append(X, np.array([sample]), axis=0)
+                y = np.append(y, key[0])
 
-        kf = StratifiedKFold(n_splits=3)
+        kf = StratifiedKFold(n_splits=self.n_folds)
 
         for train_index, test_index in kf.split(X, y):
-            print("Train Index: ", train_index, "Test Index: ", test_index)
-            X_train = [X[i] for i in train_index]
-            X_test = [X[i] for i in test_index]
-            y_train = [y[i] for i in train_index]
-            y_test = [y[i] for i in test_index]
+            #print("Train Index: ", train_index, "Test Index: ", test_index)
+            X_train = X[train_index]
+            X_test = X[test_index]
+            y_train = y[train_index]
+            y_test = y[test_index]
 
             yield X_train, y_train, X_test, y_test
+
+    def groupkfold_custom(self):
+
+      # Define folds index by samples
+      samples_index = [0]
+      final_sample = 0
+      for condition in self.conditions.items():
+        for acquisitions_details in condition[1]:
+          samples_acquisition = acquisitions_details[1] // self.sample_size
+          n_samples = acquisitions_details[0] * samples_acquisition
+          fold_size_groups = acquisitions_details[0] // self.n_folds
+          fold_size = fold_size_groups * samples_acquisition
+          for i in range(self.n_folds - 1):
+            samples_index.append(samples_index[-1] + fold_size)
+          final_sample = final_sample + n_samples
+          samples_index.append(final_sample)
+
+      #print(samples_index)
+
+      # Define folds split
+      folds_split = []
+      for i in range(self.n_folds):
+        splits = [0] * self.n_folds
+        splits[i] = 1
+        folds_split.append(splits)
+
+      # print(folds_split)
+
+      folds = []
+      for split in folds_split:
+        fold_dict = {}
+        for k in range(len(samples_index) - 1):
+          pos = k % self.n_folds
+          if split[pos] == 1:
+            fold_dict[(samples_index[k], samples_index[k + 1])] = "test"
+          else:
+            fold_dict[(samples_index[k], samples_index[k + 1])] = "train"
+        folds.append(fold_dict)
+
+      # print(folds)
+
+      # Yield folds
+      for f in folds:
+        print("Folds by samples index: ", f)
+        X_train = []
+        y_train = []
+        X_test = []
+        y_test = []
+
+        counter = 0
+        for key, acquisition in self.load_acquisitions():
+          acquisition_size = len(acquisition)
+          samples_acquisition_fold = acquisition_size // self.sample_size
+          for i in range(samples_acquisition_fold):
+            sample = acquisition[(i * self.sample_size):((i + 1) * self.sample_size)]
+            res = ""
+            for (k1, k2) in f:
+              if (k1 <= counter and k2 > counter):
+                res = f[(k1, k2)]
+            if res == "train":
+              X_train.append(sample)
+              y_train.append(key[0])
+            else:
+              X_test.append(sample)
+              y_test.append(key[0])
+            counter = counter + 1
+
+        yield X_train, y_train, X_test, y_test
