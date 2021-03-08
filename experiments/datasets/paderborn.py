@@ -143,7 +143,7 @@ class Paderborn():
                               "KI01.rar", "KI03.rar", "KI04.rar", "KI05.rar", "KI07.rar", "KI08.rar",
                               "KI14.rar", "KI16.rar", "KI17.rar", "KI18.rar", "KI21.rar"]
         else:
-            rar_files_name = ["K002.rar", "KA01.rar", "KI01.rar"]
+            rar_files_name = ["K001.rar", "K002.rar", "KA01.rar", "KA03.rar", "KI01.rar", "KI03.rar"]
 
         url = self.url
 
