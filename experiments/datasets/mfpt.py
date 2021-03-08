@@ -167,14 +167,9 @@ class MFPT():
     #print(X)
     kf = StratifiedKFold(n_splits=3)
 
-    for train_index, test_index in kf.split(X, y):
-      #print("Train Index: ", train_index, "Test Index: ", test_index)
-      X_train = X[train_index]
-      X_test = X[test_index]
-      y_train = y[train_index]
-      y_test = y[test_index]
-
-      yield X_train, y_train, X_test, y_test
+    for train, test in kf.split(X, y):
+      #print("Train Index: ", train, "Test Index: ", test)
+      yield X[train], y[train], X[test], y[test]
 
   def groupkfold_custom(self):
 
