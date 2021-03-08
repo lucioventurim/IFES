@@ -7,7 +7,7 @@ from utils import persist_results, metrics
 from datasets.mfpt import MFPT
 from datasets.paderborn import Paderborn
 
-def main():
+def experiment_paderborn():
 
     debug = 1
 
@@ -44,6 +44,8 @@ def main():
         saved_results = persist_results.save_results(results)
         metrics.scores(saved_results)
 
+def main():
+    experiment_paderborn()
 
 if __name__ == "__main__":
     main()
