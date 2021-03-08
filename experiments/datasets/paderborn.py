@@ -45,9 +45,9 @@ class Paderborn():
                                "I": "inner",
                                "O": "outer"}
         else:
-            self.conditions = {"N": [(20, 256000)],
-                               "O": [(20, 256000)],
-                               "I": [(20, 256000)]}
+            self.conditions = {"N": [(40, 256000)],
+                               "O": [(40, 256000)],
+                               "I": [(40, 256000)]}
 
         self.n_folds = 5
         self.sample_size = 8192
@@ -91,16 +91,16 @@ class Paderborn():
             MIX_folder = ["KB23", "KB24", "KB27", "KI14"]  # VERIFICAR
 
         else:
-            normal_folder = ["K002"]
-            OR_folder = ["KA01"]
-            IR_folder = ["KI01"]
+            normal_folder = ["K001", "K002"]
+            OR_folder = ["KA01", "KA03"]
+            IR_folder = ["KI01", "KI03"]
 
         settings_files = ["N15_M07_F10_", "N09_M07_F10_", "N15_M01_F10_", "N15_M07_F04_"]
 
         if debug == 0:
             n = 20
         else:
-            n = 5
+            n = 3
 
         # Normal
         for folder in normal_folder:
@@ -127,7 +127,7 @@ class Paderborn():
                                                    "_" + str(i) + ".mat")
 
         self.files = files_path
-        print(self.files)
+        #print(self.files)
 
     def download(self):
         """
@@ -272,7 +272,7 @@ class Paderborn():
 
       # Yield folds
       for f in folds:
-        print("Folds by samples index: ", f)
+        #print("Folds by samples index: ", f)
         X_train = []
         y_train = []
         X_test = []
