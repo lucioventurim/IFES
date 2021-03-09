@@ -36,8 +36,8 @@ class Paderborn():
       Extract data from files
     """
     def __init__(self, debug=0):
+        #self.parentfolder = "experiments"
         self.rawfilesdir = "paderborn_raw"
-        self.dirdest = "paderborn_seg"
         self.url = "http://groups.uni-paderborn.de/kat/BearingDataCenter/"
         self.debug = debug
         if debug == 0:
@@ -173,9 +173,10 @@ class Paderborn():
         Extracts the acquisitions of each file in the dictionary files_names.
         """
 
+        cwd = os.getcwd()
         for key in self.files:
             if key != 'OR_KA08_2_2':
-                matlab_file = scipy.io.loadmat(self.files[key])
+                matlab_file = scipy.io.loadmat(os.path.join(cwd, self.files[key]))
                 if len(self.files[key]) > 41:
                     vibration_data = matlab_file[self.files[key][19:38]]['Y'][0][0][0][6][2]
                 else:

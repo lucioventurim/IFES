@@ -36,6 +36,7 @@ class MFPT():
     Extract data from files
   """
   def __init__(self, debug = 0):
+    self.parentfolder = "experiments"
     self.rawfilesdir = "mfpt_raw"
     self.url="https://mfpt.org/wp-content/uploads/2020/02/MFPT-Fault-Data-Sets-20200227T131140Z-001.zip"
     self.conditions = {"N": [(3, 585936)],
@@ -213,7 +214,7 @@ class MFPT():
 
     # Yield folds
     for f in folds:
-      print("Folds by samples index: ", f)
+      #print("Folds by samples index: ", f)
       X_train = []
       y_train = []
       X_test = []

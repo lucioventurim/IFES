@@ -7,24 +7,8 @@ from utils import persist_results, metrics
 from datasets.mfpt import MFPT
 from datasets.paderborn import Paderborn
 
-def experiment_paderborn():
 
-    debug = 1
-
-    datasets = [#('MFPT', MFPT(debug=debug)),
-                ('Paderborn', Paderborn(debug=debug)),
-                ]
-
-    clfs = [('K-Nearest Neighbors', auto_knn.instantiate_auto_knn()),
-            ('Random Forest', auto_random_forest.instantiate_auto_random_forest())
-            # ('CNN', auto_cnn.instantiate_auto_cnn()),
-            # ('AlexNet', auto_alexnet.instantiate_auto_alexnet())
-            ]
-
-    splits = [#('Kfold', 'kfold'),
-              ('StratifiedKfold', 'stratifiedkfold'),
-              ('GroupKfold', 'groupkfold_custom'),
-             ]
+def experimenter(datasets, clfs, splits):
 
     for data in datasets:
         print("### Dataset: ", data[0], "###")
@@ -45,7 +29,26 @@ def experiment_paderborn():
         metrics.scores(saved_results)
 
 def main():
-    experiment_paderborn()
+
+    debug = 1
+
+    datasets = [#('MFPT', MFPT(debug=debug)),
+                ('Paderborn', Paderborn(debug=debug)),
+                ]
+
+    clfs = [('K-Nearest Neighbors', auto_knn.instantiate_auto_knn()),
+            ('Random Forest', auto_random_forest.instantiate_auto_random_forest())
+            # ('CNN', auto_cnn.instantiate_auto_cnn()),
+            # ('AlexNet', auto_alexnet.instantiate_auto_alexnet())
+            ]
+
+    splits = [#('Kfold', 'kfold'),
+              ('StratifiedKfold', 'stratifiedkfold'),
+              ('GroupKfold', 'groupkfold_custom'),
+             ]
+
+    experimenter(datasets, clfs, splits)
+
 
 if __name__ == "__main__":
     main()
