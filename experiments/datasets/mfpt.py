@@ -36,7 +36,6 @@ class MFPT():
     Extract data from files
   """
   def __init__(self, debug = 0):
-    self.parentfolder = "experiments"
     self.rawfilesdir = "mfpt_raw"
     self.url="https://mfpt.org/wp-content/uploads/2020/02/MFPT-Fault-Data-Sets-20200227T131140Z-001.zip"
     self.conditions = {"N": [(3, 585936)],
@@ -140,16 +139,11 @@ class MFPT():
         y = np.append(y, key[0])
 
     #print(len(X))
-    kf = KFold(n_splits=3)
+    kf = KFold(n_splits=self.n_folds)
 
-    for train_index, test_index in kf.split(X):
-      #print("Train Index: ", train_index, "Test Index: ", test_index)
-      X_train = X[train_index]
-      X_test = X[test_index]
-      y_train = y[train_index]
-      y_test = y[test_index]
-
-      yield X_train, y_train, X_test, y_test
+    for train, test in kf.split(X):
+      # print("Train Index: ", train, "Test Index: ", test)
+      yield X[train], y[train], X[test], y[test]
 
 
   def stratifiedkfold(self):
@@ -166,7 +160,7 @@ class MFPT():
         y = np.append(y, key[0])
 
     #print(X)
-    kf = StratifiedKFold(n_splits=3)
+    kf = StratifiedKFold(n_splits=self.n_folds)
 
     for train, test in kf.split(X, y):
       #print("Train Index: ", train, "Test Index: ", test)

@@ -36,20 +36,20 @@ class Paderborn():
       Extract data from files
     """
     def __init__(self, debug=0):
-        #self.parentfolder = "experiments"
         self.rawfilesdir = "paderborn_raw"
         self.url = "http://groups.uni-paderborn.de/kat/BearingDataCenter/"
         self.debug = debug
         if debug == 0:
-            self.conditions = {"N": "normal",
-                               "I": "inner",
-                               "O": "outer"}
+            self.conditions = {"N": [(480, 256000)],
+                               "O": [(960, 256000)],
+                               "I": [(880, 256000)]
+                               }
         else:
-            self.conditions = {"N": [(40, 256000)],
-                               "O": [(40, 256000)],
-                               "I": [(40, 256000)]}
+            self.conditions = {"N": [(24, 256000)],
+                               "O": [(24, 256000)],
+                               "I": [(24, 256000)]}
 
-        self.n_folds = 5
+        self.n_folds = 3
         self.sample_size = 8192
         self.n_acquisitions = 20
 
@@ -88,7 +88,7 @@ class Paderborn():
                         "KA09", "KA15", "KA16", "KA22", "KA30"]
             IR_folder = ["KI01", "KI03", "KI05", "KI07", "KI08", "KI16", "KI17",
                         "KI18", "KI21"]
-            MIX_folder = ["KB23", "KB24", "KB27", "KI14"]  # VERIFICAR
+            MIX_folder = ["KB23", "KB24", "KB27", "KI14"]
 
         else:
             normal_folder = ["K001", "K002"]
@@ -127,7 +127,7 @@ class Paderborn():
                                                    "_" + str(i) + ".mat")
 
         self.files = files_path
-        #print(self.files)
+        #print(len(self.files))
 
     def download(self):
         """
@@ -143,7 +143,9 @@ class Paderborn():
                               "KI01.rar", "KI03.rar", "KI04.rar", "KI05.rar", "KI07.rar", "KI08.rar",
                               "KI14.rar", "KI16.rar", "KI17.rar", "KI18.rar", "KI21.rar"]
         else:
-            rar_files_name = ["K001.rar", "K002.rar", "KA01.rar", "KA03.rar", "KI01.rar", "KI03.rar"]
+            rar_files_name = ["K001.rar", "K002.rar",
+                              "KA01.rar", "KA03.rar",
+                              "KI01.rar", "KI03.rar"]
 
         url = self.url
 
@@ -198,14 +200,9 @@ class Paderborn():
 
         kf = KFold(n_splits=self.n_folds)
 
-        for train_index, test_index in kf.split(X):
-            #print("Train Index: ", train_index, "Test Index: ", test_index)
-            X_train = X[train_index]
-            X_test = X[test_index]
-            y_train = y[train_index]
-            y_test = y[test_index]
-
-            yield X_train, y_train, X_test, y_test
+        for train, test in kf.split(X):
+            # print("Train Index: ", train, "Test Index: ", test)
+            yield X[train], y[train], X[test], y[test]
 
     def stratifiedkfold(self):
 
@@ -222,18 +219,13 @@ class Paderborn():
 
         kf = StratifiedKFold(n_splits=self.n_folds)
 
-        for train_index, test_index in kf.split(X, y):
-            #print("Train Index: ", train_index, "Test Index: ", test_index)
-            X_train = X[train_index]
-            X_test = X[test_index]
-            y_train = y[train_index]
-            y_test = y[test_index]
-
-            yield X_train, y_train, X_test, y_test
+        for train, test in kf.split(X, y):
+            # print("Train Index: ", train, "Test Index: ", test)
+            yield X[train], y[train], X[test], y[test]
 
     def groupkfold_custom(self):
 
-      # Define folds index by samples
+      # Define folds index by samples sequential
       samples_index = [0]
       final_sample = 0
       for condition in self.conditions.items():
