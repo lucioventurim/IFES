@@ -19,7 +19,7 @@ from pyunpack import Archive
 def get_paderborn_bearings(file_name):
     # Get bearings to be considered to be
     cwd = os.getcwd()
-    bearing_file = os.path.join(cwd, "datasets", file_name)
+    bearing_file = os.path.join(cwd, "experiments/datasets", file_name)
 
     bearing_names = []
     with open(bearing_file, 'r') as fd:
