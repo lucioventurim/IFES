@@ -7,9 +7,115 @@ import scipy.io
 import numpy as np
 import os
 from sklearn.model_selection import KFold, StratifiedKFold
+import csv
+import urllib
+import rarfile
+import shutil
 
 # Unpack Tools
 from pyunpack import Archive
+
+
+def get_paderborn_bearings(file_name):
+    # Get bearings to be considered to be
+    cwd = os.getcwd()
+    bearing_file = os.path.join(cwd, "datasets", file_name)
+
+    bearing_names = []
+    with open(bearing_file, 'r') as fd:
+        reader = csv.reader(fd)
+        for row in reader:
+            bearing_names = np.append(bearing_names, row)
+
+    return bearing_names
+
+
+def download_file(url, dirname, dir_rar, bearings):
+
+    for i in bearings:
+        print("Downloading Bearing Data:", i)
+        file_name = i + ".rar"
+
+        req = urllib.request.Request(url + file_name, method='HEAD')
+        f = urllib.request.urlopen(req)
+        file_size = int(f.headers['Content-Length'])
+
+        dir_path = os.path.join(dirname, dir_rar, file_name)
+        if not os.path.exists(dir_path):
+            urllib.request.urlretrieve(url + file_name, dir_path)
+            downloaded_file_size = os.stat(dir_path).st_size
+        else:
+            downloaded_file_size = os.stat(dir_path).st_size
+
+        if file_size != downloaded_file_size:
+            os.remove(dir_path)
+            print("File Size Incorrect. Downloading Again.")
+            download_file(url, dirname, dir_rar, bearings)
+
+
+def extract_rar(bearings, dirname, dir_rar):
+
+    for i in bearings:
+        print("Extracting Bearing Data:", i)
+        dir_bearing_rar = os.path.join(dirname, dir_rar, i + ".rar")
+        dir_bearing_data = os.path.join(dirname, i)
+        if not os.path.exists(dir_bearing_data):
+            file_name = dir_bearing_rar
+            Archive(file_name).extractall(dirname)
+            extracted_files_qnt = len([name for name in os.listdir(dir_bearing_data)
+                                       if os.path.isfile(os.path.join(dir_bearing_data, name))])
+        else:
+            extracted_files_qnt = len([name for name in os.listdir(dir_bearing_data)
+                       if os.path.isfile(os.path.join(dir_bearing_data, name))])
+        rf = rarfile.RarFile(dir_bearing_rar)
+        rar_files_qnt = len(rf.namelist())
+
+        if rar_files_qnt != extracted_files_qnt + 1:
+            shutil.rmtree(dir_bearing_data)
+            print("Extracted Files Incorrect. Extracting Again.")
+            extract_rar(bearings, dirname, dir_rar)
+
+
+def group_folds_index(conditions, sample_size, n_folds):
+    # Define folds index by samples sequential for groups
+    samples_index = [0]
+    final_sample = 0
+    for condition in conditions.items():
+        for acquisitions_details in condition[1]:
+            samples_acquisition = acquisitions_details[1] // sample_size
+            n_samples = acquisitions_details[0] * samples_acquisition
+            fold_size_groups = acquisitions_details[0] // n_folds
+            fold_size = fold_size_groups * samples_acquisition
+            for i in range(n_folds - 1):
+                samples_index.append(samples_index[-1] + fold_size)
+            final_sample = final_sample + n_samples
+            samples_index.append(final_sample)
+
+    return samples_index
+
+
+def group_folds_split(n_folds, samples_index):
+    # Define folds split for groups
+    folds_split = []
+    for i in range(n_folds):
+        splits = [0] * n_folds
+        splits[i] = 1
+        folds_split.append(splits)
+
+    # print(folds_split)
+
+    folds = []
+    for split in folds_split:
+        fold_dict = {}
+        for k in range(len(samples_index) - 1):
+            pos = k % n_folds
+            if split[pos] == 1:
+                fold_dict[(samples_index[k], samples_index[k + 1])] = "test"
+            else:
+                fold_dict[(samples_index[k], samples_index[k + 1])] = "train"
+        folds.append(fold_dict)
+
+    return folds
 
 
 class Paderborn():
@@ -31,27 +137,23 @@ class Paderborn():
     Methods
     -------
     download()
-      Download raw compressed files from PADERBORN website
+      Download and extract raw compressed files from PADERBORN website
     load_acquisitions()
-      Extract data from files
+      Extract vibration data from files
     """
     def __init__(self, debug=0):
         self.rawfilesdir = "paderborn_raw"
         self.url = "http://groups.uni-paderborn.de/kat/BearingDataCenter/"
         self.debug = debug
-        if debug == 0:
-            self.conditions = {"N": [(480, 256000)],
-                               "O": [(960, 256000)],
-                               "I": [(880, 256000)]
-                               }
-        else:
-            self.conditions = {"N": [(24, 256000)],
-                               "O": [(24, 256000)],
-                               "I": [(24, 256000)]}
-
         self.n_folds = 3
         self.sample_size = 8192
-        self.n_acquisitions = 20
+
+        if debug == 0:
+            self.bearing_names = get_paderborn_bearings("paderborn_bearings.csv")
+            self.n_acquisitions = 20
+        else:
+            self.bearing_names = get_paderborn_bearings("paderborn_bearings_debug.csv")
+            self.n_acquisitions = 3
 
         """
         Associate each file name to a bearing condition in a Python dictionary. 
@@ -82,49 +184,33 @@ class Paderborn():
         """
         files_path = {}
 
-        if debug == 0:
-            normal_folder = ["K001", "K002", "K003", "K004", "K005", "K006"]
-            OR_folder = ["KA01", "KA03", "KA04", "KA05", "KA06", "KA07", "KA08",
-                        "KA09", "KA15", "KA16", "KA22", "KA30"]
-            IR_folder = ["KI01", "KI03", "KI05", "KI07", "KI08", "KI16", "KI17",
-                        "KI18", "KI21"]
-            MIX_folder = ["KB23", "KB24", "KB27", "KI14"]
-
-        else:
-            normal_folder = ["K001", "K002"]
-            OR_folder = ["KA01", "KA03"]
-            IR_folder = ["KI01", "KI03"]
-
         settings_files = ["N15_M07_F10_", "N09_M07_F10_", "N15_M01_F10_", "N15_M07_F04_"]
 
-        if debug == 0:
-            n = 20
-        else:
-            n = 3
+        normal_qnt = 0
+        OR_qnt = 0
+        IR_qnt = 0
 
-        # Normal
-        for folder in normal_folder:
+        for bearing in self.bearing_names:
+            if bearing[1] == '0':
+                tp = "Normal_"
+                normal_qnt = normal_qnt + 1
+            elif bearing[1] == 'A':
+                tp = "OR_"
+                OR_qnt = OR_qnt + 1
+            else:
+                tp = "IR_"
+                IR_qnt = IR_qnt + 1
             for idx, setting in enumerate(settings_files):
-                for i in range(1, n + 1):
-                    key = "Normal_" + folder + "_" + str(idx) + "_" + str(i)
-                    files_path[key] = os.path.join(self.rawfilesdir, folder, setting + folder +
+                for i in range(1, self.n_acquisitions + 1):
+                    key = tp + bearing + "_" + str(idx) + "_" + str(i)
+                    files_path[key] = os.path.join(self.rawfilesdir, bearing, setting + bearing +
                                                    "_" + str(i) + ".mat")
 
-        # OR
-        for folder in OR_folder:
-            for idx, setting in enumerate(settings_files):
-                for i in range(1, n + 1):
-                    key = "OR_" + folder + "_" + str(idx) + "_" + str(i)
-                    files_path[key] = os.path.join(self.rawfilesdir, folder, setting + folder +
-                                                   "_" + str(i) + ".mat")
-
-        # IR
-        for folder in IR_folder:
-            for idx, setting in enumerate(settings_files):
-                for i in range(1, n + 1):
-                    key = "IR_" + folder + "_" + str(idx) + "_" + str(i)
-                    files_path[key] = os.path.join(self.rawfilesdir, folder, setting + folder +
-                                                   "_" + str(i) + ".mat")
+        # Define number of acquisitions for each condition and its length
+        self.conditions = {"N": [((self.n_acquisitions*normal_qnt*len(settings_files)), 256000)],
+                           "O": [((self.n_acquisitions*OR_qnt*len(settings_files)), 256000)],
+                           "I": [((self.n_acquisitions*IR_qnt*len(settings_files)), 256000)]
+                           }
 
         self.files = files_path
         #print(len(self.files))
@@ -134,41 +220,20 @@ class Paderborn():
         Download and extract compressed files from Paderborn website.
         """
 
-        # RAR Files names
-        if self.debug == 0:
-            rar_files_name = ["K001.rar", "K002.rar", "K003.rar", "K004.rar", "K005.rar", "K006.rar",
-                              "KA01.rar", "KA03.rar", "KA04.rar", "KA05.rar", "KA06.rar", "KA07.rar",
-                              "KA08.rar", "KA09.rar", "KA15.rar", "KA16.rar", "KA22.rar", "KA30.rar",
-                              "KB23.rar", "KB24.rar", "KB27.rar",
-                              "KI01.rar", "KI03.rar", "KI04.rar", "KI05.rar", "KI07.rar", "KI08.rar",
-                              "KI14.rar", "KI16.rar", "KI17.rar", "KI18.rar", "KI21.rar"]
-        else:
-            rar_files_name = ["K001.rar", "K002.rar",
-                              "KA01.rar", "KA03.rar",
-                              "KI01.rar", "KI03.rar"]
-
+        # Download RAR Files
         url = self.url
-
         dirname = self.rawfilesdir
         dir_rar = "rar_files"
         if not os.path.isdir(dirname):
             os.mkdir(dirname)
-            if not os.path.isdir(os.path.join(dirname, dir_rar)):
-                os.mkdir(os.path.join(dirname, dir_rar))
-    
-                print("Downloading RAR files:")
-                for i in rar_files_name:
-                    file_name = i
-                    if not os.path.exists(os.path.join(dirname, dir_rar, file_name)):
-                        urllib.request.urlretrieve(url + file_name, os.path.join(dirname, dir_rar, file_name))
-                    print(file_name)
-    
-            print("Extracting files:")
-            for i in rar_files_name:
-                if not os.path.exists(os.path.join(dirname, i[:4])):
-                    file_name = os.path.join(dirname, dir_rar, i)
-                    Archive(file_name).extractall(dirname)
-                    print(i)
+        if not os.path.isdir(os.path.join(dirname, dir_rar)):
+            os.mkdir(os.path.join(dirname, dir_rar))
+
+        print("Downloading RAR files:")
+        download_file(url, dirname, dir_rar, self.bearing_names)
+
+        print("Extracting files:")
+        extract_rar(self.bearing_names, dirname, dir_rar)
 
     def load_acquisitions(self):
         """
@@ -225,68 +290,38 @@ class Paderborn():
 
     def groupkfold_custom(self):
 
-      # Define folds index by samples sequential
-      samples_index = [0]
-      final_sample = 0
-      for condition in self.conditions.items():
-        for acquisitions_details in condition[1]:
-          samples_acquisition = acquisitions_details[1] // self.sample_size
-          n_samples = acquisitions_details[0] * samples_acquisition
-          fold_size_groups = acquisitions_details[0] // self.n_folds
-          fold_size = fold_size_groups * samples_acquisition
-          for i in range(self.n_folds - 1):
-            samples_index.append(samples_index[-1] + fold_size)
-          final_sample = final_sample + n_samples
-          samples_index.append(final_sample)
+        # Define folds index by samples sequential
+        samples_index = group_folds_index(self.conditions, self.sample_size, self.n_folds)
+        #print(samples_index)
 
-      #print(samples_index)
+        # Define folds split
+        folds = group_folds_split(self.n_folds, samples_index)
+        # print(folds)
 
-      # Define folds split
-      folds_split = []
-      for i in range(self.n_folds):
-        splits = [0] * self.n_folds
-        splits[i] = 1
-        folds_split.append(splits)
+        # Yield folds
+        for f in folds:
+            #print("Folds by samples index: ", f)
+            X_train = []
+            y_train = []
+            X_test = []
+            y_test = []
 
-      # print(folds_split)
+            counter = 0
+            for key, acquisition in self.load_acquisitions():
+                acquisition_size = len(acquisition)
+                samples_acquisition_fold = acquisition_size // self.sample_size
+                for i in range(samples_acquisition_fold):
+                    sample = acquisition[(i * self.sample_size):((i + 1) * self.sample_size)]
+                    res = ""
+                    for (k1, k2) in f:
+                        if (k1 <= counter and k2 > counter):
+                            res = f[(k1, k2)]
+                    if res == "train":
+                        X_train.append(sample)
+                        y_train.append(key[0])
+                    else:
+                        X_test.append(sample)
+                        y_test.append(key[0])
+                    counter = counter + 1
 
-      folds = []
-      for split in folds_split:
-        fold_dict = {}
-        for k in range(len(samples_index) - 1):
-          pos = k % self.n_folds
-          if split[pos] == 1:
-            fold_dict[(samples_index[k], samples_index[k + 1])] = "test"
-          else:
-            fold_dict[(samples_index[k], samples_index[k + 1])] = "train"
-        folds.append(fold_dict)
-
-      # print(folds)
-
-      # Yield folds
-      for f in folds:
-        #print("Folds by samples index: ", f)
-        X_train = []
-        y_train = []
-        X_test = []
-        y_test = []
-
-        counter = 0
-        for key, acquisition in self.load_acquisitions():
-          acquisition_size = len(acquisition)
-          samples_acquisition_fold = acquisition_size // self.sample_size
-          for i in range(samples_acquisition_fold):
-            sample = acquisition[(i * self.sample_size):((i + 1) * self.sample_size)]
-            res = ""
-            for (k1, k2) in f:
-              if (k1 <= counter and k2 > counter):
-                res = f[(k1, k2)]
-            if res == "train":
-              X_train.append(sample)
-              y_train.append(key[0])
-            else:
-              X_test.append(sample)
-              y_test.append(key[0])
-            counter = counter + 1
-
-        yield X_train, y_train, X_test, y_test
+            yield X_train, y_train, X_test, y_test
