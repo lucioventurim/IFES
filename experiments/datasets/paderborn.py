@@ -11,10 +11,12 @@ import csv
 import urllib
 import rarfile
 import shutil
+import sys
 
 # Unpack Tools
 from pyunpack import Archive
 
+np.set_printoptions(threshold=sys.maxsize)
 
 def download_file(url, dirname, dir_rar, bearing):
 
