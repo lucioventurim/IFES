@@ -16,64 +16,48 @@ import shutil
 from pyunpack import Archive
 
 
-def get_paderborn_bearings(file_name):
-    # Get bearings to be considered to be
-    cwd = os.getcwd()
-    bearing_file = os.path.join(cwd, "experiments/datasets", file_name)
+def download_file(url, dirname, dir_rar, bearing):
 
-    bearing_names = []
-    with open(bearing_file, 'r') as fd:
-        reader = csv.reader(fd)
-        for row in reader:
-            bearing_names = np.append(bearing_names, row)
+    print("Downloading Bearing Data:", bearing)
+    file_name = bearing + ".rar"
 
-    return bearing_names
+    req = urllib.request.Request(url + file_name, method='HEAD')
+    f = urllib.request.urlopen(req)
+    file_size = int(f.headers['Content-Length'])
 
+    dir_path = os.path.join(dirname, dir_rar, file_name)
+    if not os.path.exists(dir_path):
+        urllib.request.urlretrieve(url + file_name, dir_path)
+        downloaded_file_size = os.stat(dir_path).st_size
+    else:
+        downloaded_file_size = os.stat(dir_path).st_size
 
-def download_file(url, dirname, dir_rar, bearings):
-
-    for i in bearings:
-        print("Downloading Bearing Data:", i)
-        file_name = i + ".rar"
-
-        req = urllib.request.Request(url + file_name, method='HEAD')
-        f = urllib.request.urlopen(req)
-        file_size = int(f.headers['Content-Length'])
-
-        dir_path = os.path.join(dirname, dir_rar, file_name)
-        if not os.path.exists(dir_path):
-            urllib.request.urlretrieve(url + file_name, dir_path)
-            downloaded_file_size = os.stat(dir_path).st_size
-        else:
-            downloaded_file_size = os.stat(dir_path).st_size
-
-        if file_size != downloaded_file_size:
-            os.remove(dir_path)
-            print("File Size Incorrect. Downloading Again.")
-            download_file(url, dirname, dir_rar, bearings)
+    if file_size != downloaded_file_size:
+        os.remove(dir_path)
+        print("File Size Incorrect. Downloading Again.")
+        download_file(url, dirname, dir_rar, bearing)
 
 
-def extract_rar(bearings, dirname, dir_rar):
+def extract_rar(dirname, dir_rar, bearing):
 
-    for i in bearings:
-        print("Extracting Bearing Data:", i)
-        dir_bearing_rar = os.path.join(dirname, dir_rar, i + ".rar")
-        dir_bearing_data = os.path.join(dirname, i)
-        if not os.path.exists(dir_bearing_data):
-            file_name = dir_bearing_rar
-            Archive(file_name).extractall(dirname)
-            extracted_files_qnt = len([name for name in os.listdir(dir_bearing_data)
-                                       if os.path.isfile(os.path.join(dir_bearing_data, name))])
-        else:
-            extracted_files_qnt = len([name for name in os.listdir(dir_bearing_data)
-                       if os.path.isfile(os.path.join(dir_bearing_data, name))])
-        rf = rarfile.RarFile(dir_bearing_rar)
-        rar_files_qnt = len(rf.namelist())
+    print("Extracting Bearing Data:", bearing)
+    dir_bearing_rar = os.path.join(dirname, dir_rar, bearing + ".rar")
+    dir_bearing_data = os.path.join(dirname, bearing)
+    if not os.path.exists(dir_bearing_data):
+        file_name = dir_bearing_rar
+        Archive(file_name).extractall(dirname)
+        extracted_files_qnt = len([name for name in os.listdir(dir_bearing_data)
+                                   if os.path.isfile(os.path.join(dir_bearing_data, name))])
+    else:
+        extracted_files_qnt = len([name for name in os.listdir(dir_bearing_data)
+                   if os.path.isfile(os.path.join(dir_bearing_data, name))])
+    rf = rarfile.RarFile(dir_bearing_rar)
+    rar_files_qnt = len(rf.namelist())
 
-        if rar_files_qnt != extracted_files_qnt + 1:
-            shutil.rmtree(dir_bearing_data)
-            print("Extracted Files Incorrect. Extracting Again.")
-            extract_rar(bearings, dirname, dir_rar)
+    if rar_files_qnt != extracted_files_qnt + 1:
+        shutil.rmtree(dir_bearing_data)
+        print("Extracted Files Incorrect. Extracting Again.")
+        extract_rar(dirname, dir_rar, bearing)
 
 
 def group_folds_index(conditions, sample_size, n_folds):
@@ -141,19 +125,28 @@ class Paderborn():
     load_acquisitions()
       Extract vibration data from files
     """
-    def __init__(self, debug=0):
+
+    def get_paderborn_bearings(self):
+        # Get bearings to be considered to be
+
+        bearing_file = os.path.join("datasets", self.bearing_names_file)
+
+        bearing_names = []
+        with open(bearing_file, 'r') as fd:
+            reader = csv.reader(fd)
+            for row in reader:
+                bearing_names = np.append(bearing_names, row)
+
+        return bearing_names
+
+    def __init__(self, bearing_names_file="paderborn_bearings.csv", n_aquisitions=20):
         self.rawfilesdir = "paderborn_raw"
         self.url = "http://groups.uni-paderborn.de/kat/BearingDataCenter/"
-        self.debug = debug
         self.n_folds = 3
         self.sample_size = 8192
-
-        if debug == 0:
-            self.bearing_names = get_paderborn_bearings("paderborn_bearings.csv")
-            self.n_acquisitions = 20
-        else:
-            self.bearing_names = get_paderborn_bearings("paderborn_bearings_debug.csv")
-            self.n_acquisitions = 3
+        self.bearing_names_file = bearing_names_file
+        self.bearing_names = self.get_paderborn_bearings()
+        self.n_acquisitions = n_aquisitions
 
         """
         Associate each file name to a bearing condition in a Python dictionary. 
@@ -229,11 +222,11 @@ class Paderborn():
         if not os.path.isdir(os.path.join(dirname, dir_rar)):
             os.mkdir(os.path.join(dirname, dir_rar))
 
-        print("Downloading RAR files:")
-        download_file(url, dirname, dir_rar, self.bearing_names)
+        print("Downloading and Extracting RAR files:")
 
-        print("Extracting files:")
-        extract_rar(self.bearing_names, dirname, dir_rar)
+        for bearing in self.bearing_names:
+            download_file(url, dirname, dir_rar, bearing)
+            extract_rar(dirname, dir_rar, bearing)
 
     def load_acquisitions(self):
         """
