@@ -35,18 +35,15 @@ class MFPT():
   load_acquisitions()
     Extract data from files
   """
-  def __init__(self, debug = 0):
+  def __init__(self):
     self.rawfilesdir = "mfpt_raw"
     self.url="https://mfpt.org/wp-content/uploads/2020/02/MFPT-Fault-Data-Sets-20200227T131140Z-001.zip"
     self.conditions = {"N": [(3, 585936)],
               "O": [(3, 585936), (7, 146484)],
               "I": [(7, 146484)]}
-    self.debug = debug
 
     self.n_folds = 3
     self.sample_size = 8192
-    self.n_acquisitions = 20
-
 
     """
     The MFPT dataset is divided into 3 kinds of states: normal state, inner race
