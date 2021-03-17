@@ -3,6 +3,7 @@
 from classification_models import auto_knn, auto_random_forest
 #from classification_models import auto_cnn, auto_alexnet
 from utils import persist_results, metrics
+import os
 
 from datasets.mfpt import MFPT
 from datasets.paderborn import Paderborn
@@ -28,12 +29,15 @@ def experimenter(datasets, clfs, splits):
         saved_results = persist_results.save_results(results)
         metrics.scores(saved_results)
 
+
 def main():
 
-    debug = 1
+    abspath = os.path.abspath(__file__)
+    dname = os.path.dirname(abspath)
+    os.chdir(dname)
 
-    datasets = [#('MFPT', MFPT(debug=debug)),
-                ('Paderborn', Paderborn(debug=debug)),
+    datasets = [#('MFPT', MFPT()),
+                ('Paderborn', Paderborn(bearing_names_file="paderborn_bearings_debug.csv", n_aquisitions=3)),
                 ]
 
     clfs = [('K-Nearest Neighbors', auto_knn.instantiate_auto_knn()),
