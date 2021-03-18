@@ -2,6 +2,18 @@
 from datetime import datetime
 import csv
 import ast
+import sys
+
+# Code to avoid error with large results in CSV file
+maxInt = sys.maxsize
+while True:
+    # decrease the maxInt value by factor 10
+    # as long as the OverflowError occurs.
+    try:
+        csv.field_size_limit(maxInt)
+        break
+    except OverflowError:
+        maxInt = int(maxInt/10)
 
 
 def save_results(results):
