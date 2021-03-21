@@ -28,6 +28,7 @@ def experimenter(dataset, clfs, splits):
         file.write(f"{dataset[0]}: ")
     dataset[1].download()
     results = []
+    print("Performing Experiments.")
     for folds in splits:
         for clf in clfs:
             fold_number = 1
@@ -57,11 +58,15 @@ def main():
               ('GroupKfold', 'groupkfold_custom'),
              ]
 
+    #dataset = ('MFPT', MFPT())
+    #experimenter(dataset, clfs, splits)
+
+
     dataset = ('Paderborn3', Paderborn(bearing_names_file="paderborn_bearings_debug.csv", n_aquisitions=3))
     experimenter(dataset, clfs, splits)
     
-    dataset = ('Paderborn20', Paderborn(bearing_names_file="paderborn_bearings_debug.csv"))
-    experimenter(dataset, clfs, splits)
+    #dataset = ('Paderborn20', Paderborn(bearing_names_file="paderborn_bearings_debug.csv"))
+    #experimenter(dataset, clfs, splits)
 
 
 if __name__ == "__main__":
