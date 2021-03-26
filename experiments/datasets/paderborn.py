@@ -105,7 +105,7 @@ class Paderborn():
     def __init__(self, bearing_names_file="paderborn_bearings.csv", n_aquisitions=20):
         self.rawfilesdir = "paderborn_raw"
         self.url = "http://groups.uni-paderborn.de/kat/BearingDataCenter/"
-        self.n_folds = 3
+        self.n_folds = 4
         self.sample_size = 8192
         self.bearing_names_file = bearing_names_file
         self.bearing_names = self.get_paderborn_bearings()
@@ -138,13 +138,15 @@ class Paderborn():
         algarism representing the setting and end with an algarism representing 
         the sample sequential. All features are separated by an underscore character.
         """
-        files_path = {}
+
 
         settings_files = ["N15_M07_F10_", "N09_M07_F10_", "N15_M01_F10_", "N15_M07_F04_"]
 
         normal_qnt = 0
         OR_qnt = 0
         IR_qnt = 0
+
+        files_path = {}
 
         for bearing in self.bearing_names:
             if bearing[1] == '0':
@@ -162,14 +164,40 @@ class Paderborn():
                     files_path[key] = os.path.join(self.rawfilesdir, bearing, setting + bearing +
                                                    "_" + str(i) + ".mat")
 
+        files_path_load = {}
+
+        for idx, setting in enumerate(settings_files):
+            for bearing in self.bearing_names:
+                if bearing[1] == '0':
+                    tp = "Normal_"
+                elif bearing[1] == 'A':
+                    tp = "OR_"
+                else:
+                    tp = "IR_"
+                for i in range(1, self.n_acquisitions + 1):
+                    key = tp + bearing + "_" + str(idx) + "_" + str(i)
+                    files_path_load[key] = os.path.join(self.rawfilesdir, bearing, setting + bearing +
+                                                   "_" + str(i) + ".mat")
+
+
+
+
+
+
+
+
+
+
         # Define number of acquisitions for each condition and its length
         self.conditions = {"N": [((self.n_acquisitions*normal_qnt*len(settings_files)), 256000)],
                            "O": [((self.n_acquisitions*OR_qnt*len(settings_files)), 256000)],
                            "I": [((self.n_acquisitions*IR_qnt*len(settings_files)), 256000)]
                            }
+        print(self.conditions)
 
         self.files = files_path
-        #print(len(self.files))
+        print(self.files)
+        print(files_path_load)
 
     def download(self):
         """
@@ -246,7 +274,7 @@ class Paderborn():
             # print("Train Index: ", train, "Test Index: ", test)
             yield X[train], y[train], X[test], y[test]
 
-    def groupkfold_custom(self):
+    def groupkfold_acquisition(self):
 
         # Define folds index by samples sequential
         samples_index = folding.group_folds_index(self.conditions, self.sample_size, self.n_folds)
@@ -254,7 +282,7 @@ class Paderborn():
 
         # Define folds split
         folds = folding.group_folds_split(self.n_folds, samples_index)
-        # print(folds)
+        #print(folds)
 
         # Yield folds
         for f in folds:
@@ -281,5 +309,25 @@ class Paderborn():
                         X_test.append(sample)
                         y_test.append(key[0])
                     counter = counter + 1
+
+            yield X_train, y_train, X_test, y_test
+
+    def groupkfold_load(self):
+
+        # Define folds index by samples sequential
+        samples_index = folding.group_folds_index(self.conditions, self.sample_size, self.n_folds)
+        print(samples_index)
+
+        # Define folds split
+        folds = folding.group_folds_split(self.n_folds, samples_index)
+        #print(folds)
+
+        # Yield folds
+        for f in folds:
+            # print("Folds by samples index: ", f)
+            X_train = []
+            y_train = []
+            X_test = []
+            y_test = []
 
             yield X_train, y_train, X_test, y_test

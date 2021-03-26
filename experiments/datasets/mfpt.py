@@ -205,7 +205,7 @@ class MFPT():
             #print("Train Index: ", train, "Test Index: ", test)
             yield X[train], y[train], X[test], y[test]
 
-    def groupkfold_custom(self):
+    def groupkfold_acquisition(self):
 
         # Define folds index by samples sequential
         samples_index = folding.group_folds_index(self.conditions, self.sample_size, self.n_folds)
