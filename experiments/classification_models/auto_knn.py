@@ -15,8 +15,8 @@ def instantiate_auto_knn():
                     ('knn', KNeighborsClassifier()),
                     ])
 
-    #parameters_knn = {'knn__n_neighbors': list(range(1, 16, 2))}
+    parameters_knn = {'knn__n_neighbors': [1, 5, 9]}
 
-    #knn = GridSearchCV(knn, parameters_knn)
+    knn = GridSearchCV(knn, parameters_knn)
 
     return knn

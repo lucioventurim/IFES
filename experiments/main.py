@@ -32,15 +32,16 @@ def experimenter(dataset, clfs, splits):
     for folds in splits:
         for clf in clfs:
             fold_number = 1
+            print(folds[0], clf[0])
             for X_train, y_train, X_test, y_test in getattr(dataset[1], folds[1])():
-                print(folds[0], clf[0])
-                #clf[1].fit(X_train, y_train)
-                #y_pred = clf[1].predict(X_test)
-                #y_proba = clf[1].predict_proba(X_test)
-                #results.append([dataset[0], folds[0], clf[0], fold_number, y_test, y_pred, y_proba])
-                #fold_number = fold_number + 1
-    #saved_results = persist_results.save_results(results)
-    #metrics.scores(saved_results)
+                print("fold_number: ", fold_number)
+                clf[1].fit(X_train, y_train)
+                y_pred = clf[1].predict(X_test)
+                y_proba = clf[1].predict_proba(X_test)
+                results.append([dataset[0], folds[0], clf[0], fold_number, y_test, y_pred, y_proba])
+                fold_number = fold_number + 1
+    saved_results = persist_results.save_results(results)
+    metrics.scores(saved_results)
 
 
 def main():
@@ -54,17 +55,18 @@ def main():
             # ('AlexNet', auto_alexnet.instantiate_auto_alexnet())
             ]
 
-    splits = [#('Kfold', 'kfold'),
-              #('StratifiedKfold', 'stratifiedkfold'),
-              #('GroupKfold by Acquisition', 'groupkfold_acquisition'),
-              ('GroupKfold by Load', 'groupkfold_load'),
+    splits = [('Kfold', 'kfold'),
+              ('StratifiedKfold', 'stratifiedkfold'),
+              ('GroupKfold by Acquisition', 'groupkfold_acquisition'),
+              ('GroupKfold by Settings', 'groupkfold_settings'),
+              ('GroupKfold by Bearings', 'groupkfold_bearings'),
              ]
 
     #dataset = ('MFPT', MFPT())
     #experimenter(dataset, clfs, splits)
 
 
-    dataset = ('Paderborn3', Paderborn(bearing_names_file="paderborn_bearings_debug.csv", n_aquisitions=4))
+    dataset = ('Paderborn4', Paderborn(bearing_names_file="paderborn_bearings_debug.csv", n_aquisitions=4))
     experimenter(dataset, clfs, splits)
     
     #dataset = ('Paderborn20', Paderborn(bearing_names_file="paderborn_bearings_debug.csv"))
