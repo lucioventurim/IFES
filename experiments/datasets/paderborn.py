@@ -6,7 +6,7 @@ import urllib.request
 import scipy.io
 import numpy as np
 import os
-from sklearn.model_selection import KFold, StratifiedKFold, GroupKFold, StratifiedShuffleSplit
+from sklearn.model_selection import KFold, GroupKFold, StratifiedShuffleSplit
 import csv
 import urllib
 import rarfile
@@ -142,24 +142,16 @@ class Paderborn():
 
         settings_files = ["N15_M07_F10_", "N09_M07_F10_", "N15_M01_F10_", "N15_M07_F04_"]
 
-        normal_qnt = 0
-        OR_qnt = 0
-        IR_qnt = 0
-
-
         # Files Paths ordered by bearings
         files_path = {}
 
         for bearing in self.bearing_names:
             if bearing[1] == '0':
                 tp = "Normal_"
-                normal_qnt = normal_qnt + 1
             elif bearing[1] == 'A':
                 tp = "OR_"
-                OR_qnt = OR_qnt + 1
             else:
                 tp = "IR_"
-                IR_qnt = IR_qnt + 1
             for idx, setting in enumerate(settings_files):
                 for i in range(1, self.n_acquisitions + 1):
                     key = tp + bearing + "_" + str(idx) + "_" + str(i)
@@ -181,12 +173,6 @@ class Paderborn():
                     key = tp + bearing + "_" + str(idx) + "_" + str(i)
                     files_path_settings[key] = os.path.join(self.rawfilesdir, bearing, setting + bearing +
                                                    "_" + str(i) + ".mat")
-
-        # Define number of acquisitions for each condition and its length
-        self.conditions = {"N": [((self.n_acquisitions*normal_qnt*len(settings_files)), 256000)],
-                           "O": [((self.n_acquisitions*OR_qnt*len(settings_files)), 256000)],
-                           "I": [((self.n_acquisitions*IR_qnt*len(settings_files)), 256000)]
-                           }
 
         self.files = files_path
         self.files_settings = files_path_settings
@@ -238,7 +224,7 @@ class Paderborn():
                 X = np.append(X, np.array([sample]), axis=0)
                 y = np.append(y, key[0])
 
-        kf = KFold(n_splits=self.n_folds, shuffle=True)
+        kf = KFold(n_splits=self.n_folds, shuffle=True, random_state=42)
 
         for train, test in kf.split(X):
             # print("Train Index: ", train, "Test Index: ", test)
@@ -255,7 +241,7 @@ class Paderborn():
                 X = np.append(X, np.array([sample]), axis=0)
                 y = np.append(y, key[0])
 
-        kf = StratifiedShuffleSplit(n_splits=self.n_folds)
+        kf = StratifiedShuffleSplit(n_splits=self.n_folds, random_state=42)
 
         for train, test in kf.split(X, y):
             # print("Train Index: ", train, "Test Index: ", test)

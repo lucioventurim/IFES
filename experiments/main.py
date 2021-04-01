@@ -1,5 +1,5 @@
 
-from classification_models import auto_knn, auto_random_forest
+from classification_models import auto_knn, auto_random_forest, auto_lr
 #from classification_models import auto_cnn
 from utils import persist_results, metrics
 import os
@@ -50,12 +50,12 @@ def main():
     os.chdir(dname)
 
     clfs = [('K-Nearest Neighbors', auto_knn.instantiate_auto_knn()),
-            #('Random Forest', auto_random_forest.instantiate_auto_random_forest())
-            # ('CNN', auto_cnn.instantiate_auto_cnn()),
-            # ('AlexNet', auto_alexnet.instantiate_auto_alexnet())
+            ('Random Forest', auto_random_forest.instantiate_auto_random_forest()),
+            #('CNN', auto_cnn.instantiate_auto_cnn()),
+            #('Logistic Regression', auto_lr.instantiate_auto_lr()),
             ]
 
-    splits = [('Kfold', 'kfold'),
+    splits = [#('Kfold', 'kfold'),
               ('StratifiedKfold', 'stratifiedkfold'),
               ('GroupKfold by Acquisition', 'groupkfold_acquisition'),
               ('GroupKfold by Settings', 'groupkfold_settings'),
@@ -65,12 +65,8 @@ def main():
     #dataset = ('MFPT', MFPT())
     #experimenter(dataset, clfs, splits)
 
-
-    dataset = ('Paderborn4', Paderborn(bearing_names_file="paderborn_bearings_debug.csv", n_aquisitions=4))
+    dataset = ('Paderborn20', Paderborn(bearing_names_file="paderborn_bearings_debug.csv", n_aquisitions=20))
     experimenter(dataset, clfs, splits)
-    
-    #dataset = ('Paderborn20', Paderborn(bearing_names_file="paderborn_bearings_debug.csv"))
-    #experimenter(dataset, clfs, splits)
 
 
 if __name__ == "__main__":
