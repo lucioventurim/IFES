@@ -12,6 +12,8 @@ import urllib
 import rarfile
 import shutil
 import sys
+from urllib.error import URLError, HTTPError, ContentTooShortError
+import socket
 
 # Unpack Tools
 from pyunpack import Archive
@@ -25,20 +27,25 @@ def download_file(url, dirname, dir_rar, bearing):
     print("Downloading Bearing Data:", bearing)
     file_name = bearing + ".rar"
 
-    req = urllib.request.Request(url + file_name, method='HEAD')
-    f = urllib.request.urlopen(req)
-    file_size = int(f.headers['Content-Length'])
+    try:
+        req = urllib.request.Request(url + file_name, method='HEAD')
+        f = urllib.request.urlopen(req)
+        file_size = int(f.headers['Content-Length'])
 
-    dir_path = os.path.join(dirname, dir_rar, file_name)
-    if not os.path.exists(dir_path):
-        urllib.request.urlretrieve(url + file_name, dir_path)
-        downloaded_file_size = os.stat(dir_path).st_size
-    else:
-        downloaded_file_size = os.stat(dir_path).st_size
+        dir_path = os.path.join(dirname, dir_rar, file_name)
+        if not os.path.exists(dir_path):
+            urllib.request.urlretrieve(url + file_name, dir_path)
+            downloaded_file_size = os.stat(dir_path).st_size
+        else:
+            downloaded_file_size = os.stat(dir_path).st_size
 
-    if file_size != downloaded_file_size:
-        os.remove(dir_path)
-        print("File Size Incorrect. Downloading Again.")
+        if file_size != downloaded_file_size:
+            os.remove(dir_path)
+            print("File Size Incorrect. Downloading Again.")
+            download_file(url, dirname, dir_rar, bearing)
+    except Exception as e:
+        print("Error occurs when downloading file: " + str(e))
+        print("Trying do download again")
         download_file(url, dirname, dir_rar, bearing)
 
 
