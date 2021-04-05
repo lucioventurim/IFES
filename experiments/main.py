@@ -65,7 +65,7 @@ def main():
     #dataset = ('MFPT', MFPT())
     #experimenter(dataset, clfs, splits)
 
-    dataset = ('Paderborn20', Paderborn(bearing_names_file="paderborn_bearings_debug.csv", n_aquisitions=20))
+    dataset = ('Paderborn', Paderborn(bearing_names_file="paderborn_bearings.csv", n_aquisitions=20))
     experimenter(dataset, clfs, splits)
 
 
