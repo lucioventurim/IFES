@@ -118,6 +118,10 @@ class Paderborn():
         self.bearing_names = self.get_paderborn_bearings()
         self.n_acquisitions = n_aquisitions
 
+        self.signal_data = np.empty((0,self.sample_size))
+        self.labels = []
+        self.keys = []
+
         """
         Associate each file name to a bearing condition in a Python dictionary. 
         The dictionary keys identify the conditions.
@@ -165,24 +169,7 @@ class Paderborn():
                     files_path[key] = os.path.join(self.rawfilesdir, bearing, setting + bearing +
                                                    "_" + str(i) + ".mat")
 
-        # Files Paths ordered by settings
-        files_path_settings = {}
-
-        for idx, setting in enumerate(settings_files):
-            for bearing in self.bearing_names:
-                if bearing[1] == '0':
-                    tp = "Normal_"
-                elif bearing[1] == 'A':
-                    tp = "OR_"
-                else:
-                    tp = "IR_"
-                for i in range(1, self.n_acquisitions + 1):
-                    key = tp + bearing + "_" + str(idx) + "_" + str(i)
-                    files_path_settings[key] = os.path.join(self.rawfilesdir, bearing, setting + bearing +
-                                                   "_" + str(i) + ".mat")
-
         self.files = files_path
-        self.files_settings = files_path_settings
 
     def download(self):
         """
@@ -206,92 +193,86 @@ class Paderborn():
 
         print("Dataset Loaded.")
 
-    def load_acquisitions(self, files_path):
+    def load_acquisitions(self):
         """
         Extracts the acquisitions of each file in the dictionary files_names.
         """
-
         cwd = os.getcwd()
-        for key in files_path:
-            if key != 'OR_KA08_2_2':
-                matlab_file = scipy.io.loadmat(os.path.join(cwd, files_path[key]))
-                if len(files_path[key]) > 41:
-                    vibration_data = matlab_file[files_path[key][19:38]]['Y'][0][0][0][6][2]
-                else:
-                    vibration_data = matlab_file[files_path[key][19:37]]['Y'][0][0][0][6][2]
-            yield key, vibration_data[0]
 
-    def kfold(self):
-        X = np.empty((0,self.sample_size))
-        y = []
+        print("entrou")
+        for key in self.files:
+            matlab_file = scipy.io.loadmat(os.path.join(cwd, self.files[key]))
+            if len(self.files[key]) > 41:
+                vibration_data = matlab_file[self.files[key][19:38]]['Y'][0][0][0][6][2]
+            else:
+                vibration_data = matlab_file[self.files[key][19:37]]['Y'][0][0][0][6][2]
 
-        for key, acquisition in self.load_acquisitions(self.files):
+            acquisition = vibration_data[0]
             for i in range(self.n_samples_acquisition):
                 sample = acquisition[(i * self.sample_size):((i + 1) * self.sample_size)]
-                X = np.append(X, np.array([sample]), axis=0)
-                y = np.append(y, key[0])
+                self.signal_data = np.append(self.signal_data, np.array([sample]), axis=0)
+                self.labels = np.append(self.labels, key[0])
+                self.keys = np.append(self.keys, key)
+
+    def kfold(self):
+
+        if len(self.signal_data) == 0:
+            self.load_acquisitions()
 
         kf = KFold(n_splits=self.n_folds, shuffle=True, random_state=42)
 
-        for train, test in kf.split(X):
-            # print("Train Index: ", train, "Test Index: ", test)
-            yield X[train], y[train], X[test], y[test]
+        for train, test in kf.split(self.signal_data):
+            #print("Train Index: ", train, "Test Index: ", test)
+            yield self.signal_data[train], self.labels[train], self.signal_data[test], self.labels[test]
 
     def stratifiedkfold(self):
 
-        X = np.empty((0,self.sample_size))
-        y = []
-
-        for key, acquisition in self.load_acquisitions(self.files):
-            for i in range(self.n_samples_acquisition):
-                sample = acquisition[(i * self.sample_size):((i + 1) * self.sample_size)]
-                X = np.append(X, np.array([sample]), axis=0)
-                y = np.append(y, key[0])
+        if len(self.signal_data) == 0:
+            self.load_acquisitions()
 
         kf = StratifiedShuffleSplit(n_splits=self.n_folds, random_state=42)
 
-        for train, test in kf.split(X, y):
-            # print("Train Index: ", train, "Test Index: ", test)
-            yield X[train], y[train], X[test], y[test]
+        for train, test in kf.split(self.signal_data, self.labels):
+            #print("Train Index: ", train, "Test Index: ", test)
+            yield self.signal_data[train], self.labels[train], self.signal_data[test], self.labels[test]
 
     def groupkfold_acquisition(self):
 
-        X = np.empty((0, self.sample_size))
-        y = []
-        groups = []
+        if len(self.signal_data) == 0:
+            self.load_acquisitions()
 
-        for key, acquisition in self.load_acquisitions(self.files):
-            for i in range(self.n_samples_acquisition):
-                sample = acquisition[(i * self.sample_size):((i + 1) * self.sample_size)]
-                X = np.append(X, np.array([sample]), axis=0)
-                y = np.append(y, key[0])
-                groups = np.append(groups, int(key[-1]) % self.n_folds)
+        groups = []
+        for i in self.keys:
+            groups = np.append(groups, int(i[-1]) % self.n_folds)
 
         kf = GroupKFold(n_splits=self.n_folds)
 
-        for train, test in kf.split(X, y, groups):
+        for train, test in kf.split(self.signal_data, self.labels, groups):
             # print("Train Index: ", train, "Test Index: ", test)
-            yield X[train], y[train], X[test], y[test]
+            yield self.signal_data[train], self.labels[train], self.signal_data[test], self.labels[test]
 
     def groupkfold_settings(self):
-        X = np.empty((0, self.sample_size))
-        y = []
 
-        for key, acquisition in self.load_acquisitions(self.files_settings):
-            for i in range(self.n_samples_acquisition):
-                sample = acquisition[(i * self.sample_size):((i + 1) * self.sample_size)]
-                X = np.append(X, np.array([sample]), axis=0)
-                y = np.append(y, key[0])
+        if len(self.signal_data) == 0:
+            self.load_acquisitions()
 
-        kf = KFold(n_splits=self.n_folds)
+        groups = []
+        for i in range(len(self.bearing_names)):
+            for k in range(4): # Number of Settings - 4
+                for j in range(self.n_samples_acquisition*self.n_acquisitions):
+                    groups = np.append(groups, k)
 
-        for train, test in kf.split(X):
+        kf = GroupKFold(n_splits=self.n_folds)
+
+        for train, test in kf.split(self.signal_data, self.labels, groups):
             #print("Train Index: ", train, "Test Index: ", test)
-            yield X[train], y[train], X[test], y[test]
+            yield self.signal_data[train], self.labels[train], self.signal_data[test], self.labels[test]
 
     def groupkfold_bearings(self):
-        X = np.empty((0, self.sample_size))
-        y = []
+
+        if len(self.signal_data) == 0:
+            self.load_acquisitions()
+
         groups = []
 
         n_keys_bearings = 1
@@ -299,18 +280,15 @@ class Paderborn():
         n_outer = 1
         n_inner = 1
 
-        for key, acquisition in self.load_acquisitions(self.files):
-            for i in range(self.n_samples_acquisition):
-                sample = acquisition[(i * self.sample_size):((i + 1) * self.sample_size)]
-                X = np.append(X, np.array([sample]), axis=0)
-                y = np.append(y, key[0])
-                if key[0] == 'N':
-                    groups = np.append(groups, n_normal % self.n_folds)
-                if key[0] == 'O':
-                    groups = np.append(groups, n_outer % self.n_folds)
-                if key[0] == 'I':
-                    groups = np.append(groups, n_inner % self.n_folds)
-            if n_keys_bearings < 4*self.n_acquisitions:
+        for key in self.keys:
+            if key[0] == 'N':
+                groups = np.append(groups, n_normal % self.n_folds)
+            if key[0] == 'O':
+                groups = np.append(groups, n_outer % self.n_folds)
+            if key[0] == 'I':
+                groups = np.append(groups, n_inner % self.n_folds)
+
+            if n_keys_bearings < 4 * self.n_acquisitions*self.n_samples_acquisition:
                 n_keys_bearings = n_keys_bearings + 1
             elif key[0] == 'N':
                 n_normal = n_normal + 1
@@ -324,6 +302,6 @@ class Paderborn():
 
         kf = GroupKFold(n_splits=self.n_folds)
 
-        for train, test in kf.split(X, y, groups):
-            #print("Train Index: ", train, "Test Index: ", test)
-            yield X[train], y[train], X[test], y[test]
+        for train, test in kf.split(self.signal_data, self.labels, groups):
+            # print("Train Index: ", train, "Test Index: ", test)
+            yield self.signal_data[train], self.labels[train], self.signal_data[test], self.labels[test]
