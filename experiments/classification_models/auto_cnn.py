@@ -8,7 +8,7 @@ from tensorflow import keras
 def create_model():
 
     model_m = keras.Sequential()
-    model_m.add(keras.layers.Reshape((8192, 1), input_shape=(8192,1)))
+    model_m.add(keras.layers.Input(shape=(8192,1)))
     model_m.add(keras.layers.Conv1D(100, 10, activation='relu', input_shape=(8192, 1)))
     model_m.add(keras.layers.Conv1D(100, 10, activation='relu'))
     model_m.add(keras.layers.MaxPooling1D(3))
@@ -17,9 +17,9 @@ def create_model():
     model_m.add(keras.layers.GlobalAveragePooling1D())
     model_m.add(keras.layers.Dropout(0.5))
     model_m.add(keras.layers.Dense(1, activation='softmax'))
-    print(model_m.summary())
+    #print(model_m.summary())
 
-    loss = 'binary_crossentropy'
+    loss = 'categorical_crossentropy'
     optimizer = 'adam'
     metrics = ['accuracy']
     model_m.compile(optimizer=optimizer, loss=loss, metrics=metrics)

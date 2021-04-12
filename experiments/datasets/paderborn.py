@@ -199,7 +199,6 @@ class Paderborn():
         """
         cwd = os.getcwd()
 
-        print("entrou")
         for key in self.files:
             matlab_file = scipy.io.loadmat(os.path.join(cwd, self.files[key]))
             if len(self.files[key]) > 41:
