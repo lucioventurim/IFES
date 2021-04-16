@@ -51,7 +51,7 @@ def main():
     dname = os.path.dirname(abspath)
     os.chdir(dname)
 
-    clfs = [('K-Nearest Neighbors', auto_knn.instantiate_auto_knn()),
+    clfs = [#('K-Nearest Neighbors', auto_knn.instantiate_auto_knn()),
             #('Random Forest', auto_random_forest.instantiate_auto_random_forest()),
             ('CNN', auto_cnn.instantiate_auto_cnn()),
             #('Logistic Regression', auto_lr.instantiate_auto_lr()),
