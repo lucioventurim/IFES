@@ -58,13 +58,13 @@ def main():
             ]
 
     splits = [('Kfold', 'kfold'),
-              ('StratifiedKfold', 'stratifiedkfold'),
-              ('GroupKfold by Acquisition', 'groupkfold_acquisition'),
-              ('GroupKfold by Settings', 'groupkfold_settings'),
-              ('GroupKfold by Bearings', 'groupkfold_bearings'),
+              #('StratifiedKfold', 'stratifiedkfold'),
+              #('GroupKfold by Acquisition', 'groupkfold_acquisition'),
+              #('GroupKfold by Settings', 'groupkfold_settings'),
+              #('GroupKfold by Bearings', 'groupkfold_bearings'),
              ]
 
-    dataset = ('Paderborn', Paderborn(bearing_names_file="paderborn_bearings_debug.csv", n_aquisitions=4))
+    dataset = ('Paderborn', Paderborn(bearing_names_file="paderborn_bearings_min.csv", n_aquisitions=1))
     experimenter(dataset, clfs, splits)
 
 
