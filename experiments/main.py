@@ -9,6 +9,10 @@ import numpy as np
 from datasets.mfpt import MFPT
 from datasets.paderborn import Paderborn
 
+def write_in_file(file_name, message):
+    with open(file_name, 'a') as file:
+        file.write(message)
+
 import time
 import functools
 def timer(func):
@@ -18,16 +22,21 @@ def timer(func):
         value = func(*args, **kwargs)
         end_time = time.perf_counter()
         run_time = end_time - start_time
-        with open("execution_time", 'a') as file:
-            file.write(f"{run_time} s\n")
+        write_in_file("execution_time", f"{run_time} s\n")
         return value
     return wrapper_timer
 
 @timer
+def run_train_test(classifier, X_train, y_train, X_test):
+    classifier.fit(X_train, y_train)
+    y_pred = classifier.predict(X_test)
+    y_proba = classifier.predict_proba(X_test)
+    return y_pred, y_proba
+
+@timer
 def experimenter(dataset, clfs, splits):
     print("### Dataset: ", dataset[0], "###")
-    with open("execution_time", 'a') as file:
-        file.write(f"{dataset[0]}: ")
+    write_in_file("execution_time", f"{dataset[0]}\n")
     dataset[1].download()
     results = []
     print("Performing Experiments.")
@@ -35,11 +44,11 @@ def experimenter(dataset, clfs, splits):
         for clf in clfs:
             fold_number = 1
             print(folds[0], clf[0])
+            write_in_file("execution_time", f"{folds[0]} - {clf[0]}\n")
             for X_train, y_train, X_test, y_test in getattr(dataset[1], folds[1])():
+                write_in_file("execution_time", f"{fold_number}: ")
                 print("fold_number: ", fold_number)
-                clf[1].fit(X_train, y_train)
-                y_pred = clf[1].predict(X_test)
-                y_proba = clf[1].predict_proba(X_test)
+                y_pred, y_proba = run_train_test(clf[1], X_train, y_train, X_test)
                 results.append([dataset[0], folds[0], clf[0], fold_number, y_test, y_pred, y_proba])
                 fold_number = fold_number + 1
     saved_results = persist_results.save_results(results)

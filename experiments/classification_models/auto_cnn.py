@@ -9,10 +9,10 @@ import numpy as np
 
 class CNN(BaseEstimator, ClassifierMixin):
     def __init__(self,
-                 kernel_size=4,
-                 filters=4,
-                 optimizer='sgd',
-                 epochs=50
+                 kernel_size=32,
+                 filters=32,
+                 optimizer='adam',
+                 epochs=100
                  ):
         self.kernel_size = kernel_size
         self.filters = filters
@@ -37,7 +37,7 @@ class CNN(BaseEstimator, ClassifierMixin):
 
         self.model = Sequential()
         self.model.add(layers.InputLayer(input_shape=(self.n_steps, self.n_features)))
-        self.model.add(layers.Conv1D(filters, kernel_size))  # , padding='valid'))
+        self.model.add(layers.Conv1D(filters, kernel_size))
         self.model.add(layers.Activation('relu'))
         self.model.add(layers.Flatten())
         self.model.add(layers.Dense(num_classes))
