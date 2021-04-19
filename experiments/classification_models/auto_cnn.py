@@ -1,63 +1,60 @@
 # CNN
 
-from sklearn.pipeline import Pipeline
-from tensorflow import keras
+from tensorflow.keras import layers
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.utils import to_categorical
 from sklearn.base import BaseEstimator, ClassifierMixin
 import numpy as np
-from sklearn.preprocessing import LabelEncoder
 
 
 class CNN(BaseEstimator, ClassifierMixin):
-    def __init__(self):
+    def __init__(self,
+                 kernel_size=4,
+                 filters=4,
+                 optimizer='sgd',
+                 epochs=50
+                 ):
+        self.kernel_size = kernel_size
+        self.filters = filters
+        self.optimizer = optimizer
+        self.epochs = epochs
         self.n_features = 1
-        self.n_samples = 0
-        self.n_steps = 8192
-        self.encoder = LabelEncoder()
-
-    # Function to create model, required for KerasClassifier
-    def create_model(self):
-        model_m = keras.Sequential()
-        model_m.add(keras.layers.Conv1D(100, 10, activation='relu', input_shape=(self.n_steps, self.n_features)))
-        model_m.add(keras.layers.Flatten())
-        model_m.add(keras.layers.Dense(3, activation='softmax'))
-        #print(model_m.summary())
-
-        loss = 'categorical_crossentropy'
-        optimizer = 'adam'
-        metrics = ['accuracy']
-        model_m.compile(optimizer=optimizer, loss=loss, metrics=metrics)
-
-        return model_m
 
     def fit(self, X, y=None):
+        kernel_size = self.kernel_size
+        filters = self.filters
+        optimizer = self.optimizer
+        epochs = self.epochs
 
         # Define innput shapes
         self.n_samples = X.shape[0]
         self.n_steps = X.shape[1]
         X = X.reshape((X.shape[0], X.shape[1], self.n_features))
 
-        # Encode categorical variables
-        self.encoder.fit(y)
-        encoded_y = self.encoder.transform(y)
-        dummy_y = keras.utils.to_categorical(encoded_y)
+        self.labels, ids = np.unique(y, return_inverse=True)
+        y_cat = to_categorical(ids)
+        num_classes = y_cat.shape[1]
 
-        self.cnn = keras.wrappers.scikit_learn.KerasClassifier(build_fn=self.create_model, verbose=0)
-        self.cnn.fit(X, dummy_y)
-
-    def predict(self, X, y=None):
-
-        X = X.reshape((X.shape[0], X.shape[1], self.n_features))
-        y_pred = self.cnn.predict(X)
-
-        y_pred = self.encoder.inverse_transform(y_pred)
-
-        return y_pred
+        self.model = Sequential()
+        self.model.add(layers.InputLayer(input_shape=(self.n_steps, self.n_features)))
+        self.model.add(layers.Conv1D(filters, kernel_size))  # , padding='valid'))
+        self.model.add(layers.Activation('relu'))
+        self.model.add(layers.Flatten())
+        self.model.add(layers.Dense(num_classes))
+        self.model.add(layers.Activation('softmax'))
+        self.model.compile(loss='categorical_crossentropy',
+                           optimizer=optimizer,
+                           metrics=["categorical_accuracy"])
+        self.model.fit(X, y_cat, epochs=epochs, verbose=False)
 
     def predict_proba(self, X, y=None):
         X = X.reshape((X.shape[0], X.shape[1], self.n_features))
-        y_pred_proba = self.cnn.predict_proba(X)
+        return self.model.predict(X)
 
-        return y_pred_proba
+    def predict(self, X, y=None):
+        X = X.reshape((X.shape[0], X.shape[1], self.n_features))
+        predictions = self.model.predict(X)
+        return self.labels[np.argmax(predictions, axis=1)]
 
 
 def instantiate_auto_cnn():
