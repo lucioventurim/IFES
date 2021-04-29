@@ -60,7 +60,7 @@ def main():
     dname = os.path.dirname(abspath)
     os.chdir(dname)
 
-    clfs = [('K-Nearest Neighbors', auto_knn.instantiate_auto_knn()),
+    clfs = [#('K-Nearest Neighbors', auto_knn.instantiate_auto_knn()),
             #('Random Forest', auto_random_forest.instantiate_auto_random_forest()),
             ('CNN', auto_cnn.instantiate_auto_cnn()),
             #('Logistic Regression', auto_lr.instantiate_auto_lr()),
@@ -73,7 +73,7 @@ def main():
               ('GroupKfold by Bearings', 'groupkfold_bearings'),
              ]
 
-    dataset = ('Paderborn', Paderborn(bearing_names_file="paderborn_bearings_debug.csv", n_aquisitions=4))
+    dataset = ('Paderborn', Paderborn(bearing_names_file="paderborn_bearings.csv", n_aquisitions=20))
     experimenter(dataset, clfs, splits)
 
 
