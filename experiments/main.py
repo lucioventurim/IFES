@@ -1,7 +1,7 @@
 
 from classification_models import auto_knn, auto_random_forest, auto_lr
 from classification_models import auto_cnn
-from classification_models import auto_cnn_torch
+from classification_models import auto_resnet
 from utils import persist_results, metrics
 import os
 
@@ -65,17 +65,17 @@ def main():
             #('Random Forest', auto_random_forest.instantiate_auto_random_forest()),
             #('CNN', auto_cnn.instantiate_auto_cnn()),
             #('Logistic Regression', auto_lr.instantiate_auto_lr()),
-            ('CNN PyTorch', auto_cnn_torch.instantiate_auto_cnn()),
+            ('ResNet', auto_resnet.instantiate_auto_resnet()),
             ]
 
     splits = [('Kfold', 'kfold'),
-              #('StratifiedKfold', 'stratifiedkfold'),
-              #('GroupKfold by Acquisition', 'groupkfold_acquisition'),
-              #('GroupKfold by Settings', 'groupkfold_settings'),
-              #('GroupKfold by Bearings', 'groupkfold_bearings'),
+              ('StratifiedKfold', 'stratifiedkfold'),
+              ('GroupKfold by Acquisition', 'groupkfold_acquisition'),
+              ('GroupKfold by Settings', 'groupkfold_settings'),
+              ('GroupKfold by Bearings', 'groupkfold_bearings'),
              ]
 
-    dataset = ('Paderborn', Paderborn(bearing_names_file="paderborn_bearings_min.csv", n_aquisitions=1))
+    dataset = ('Paderborn', Paderborn(bearing_names_file="paderborn_bearings.csv", n_aquisitions=20))
     experimenter(dataset, clfs, splits)
 
 
