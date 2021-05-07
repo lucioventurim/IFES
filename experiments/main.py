@@ -1,6 +1,7 @@
 
 from classification_models import auto_knn, auto_random_forest, auto_lr
 from classification_models import auto_cnn
+from classification_models import auto_resnet
 from utils import persist_results, metrics
 import os
 
@@ -62,8 +63,9 @@ def main():
 
     clfs = [#('K-Nearest Neighbors', auto_knn.instantiate_auto_knn()),
             #('Random Forest', auto_random_forest.instantiate_auto_random_forest()),
-            ('CNN', auto_cnn.instantiate_auto_cnn()),
+            #('CNN', auto_cnn.instantiate_auto_cnn()),
             #('Logistic Regression', auto_lr.instantiate_auto_lr()),
+            ('ResNet', auto_resnet.instantiate_auto_resnet()),
             ]
 
     splits = [('Kfold', 'kfold'),

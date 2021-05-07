@@ -12,7 +12,7 @@ class CNN(BaseEstimator, ClassifierMixin):
                  kernel_size=32,
                  filters=32,
                  optimizer='adam',
-                 epochs=100
+                 epochs=10
                  ):
         self.kernel_size = kernel_size
         self.filters = filters
@@ -37,9 +37,22 @@ class CNN(BaseEstimator, ClassifierMixin):
 
         self.model = Sequential()
         self.model.add(layers.InputLayer(input_shape=(self.n_steps, self.n_features)))
-        self.model.add(layers.Conv1D(filters, kernel_size))
-        self.model.add(layers.Activation('relu'))
-        self.model.add(layers.Flatten())
+
+        self.model.add(layers.Conv1D(filters=16, kernel_size=8, strides=2, activation='relu'))
+        self.model.add(layers.Conv1D(filters=16, kernel_size=8, strides=2, activation='relu', padding='same'))
+        self.model.add(layers.MaxPooling1D(2))
+        self.model.add(layers.Conv1D(filters=64, kernel_size=4, strides=2, activation='relu', padding='same'))
+        self.model.add(layers.Conv1D(filters=64, kernel_size=4, strides=2, activation='relu', padding='same'))
+        self.model.add(layers.MaxPooling1D(2))
+        self.model.add(layers.Conv1D(filters=256, kernel_size=4, strides=2, activation='relu', padding='same'))
+        self.model.add(layers.Conv1D(filters=256, kernel_size=4, strides=2, activation='relu', padding='same'))
+        self.model.add(layers.MaxPooling1D(2))
+        self.model.add(layers.Conv1D(filters=512, kernel_size=4, strides=1, activation='relu', padding='same'))
+        self.model.add(layers.Conv1D(filters=512, kernel_size=4, strides=1, activation='relu', padding='same'))
+        self.model.add(layers.MaxPooling1D(2))
+        self.model.add(layers.GlobalAveragePooling1D())
+        self.model.add(layers.Dropout(0.3))
+
         self.model.add(layers.Dense(num_classes))
         self.model.add(layers.Activation('softmax'))
         self.model.compile(loss='categorical_crossentropy',
