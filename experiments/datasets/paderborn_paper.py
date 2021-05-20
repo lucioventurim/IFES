@@ -109,9 +109,9 @@ class Paderborn():
     def __init__(self, bearing_names_file="paderborn_bearings.csv", n_aquisitions=20):
         self.rawfilesdir = "paderborn_raw"
         self.url = "http://groups.uni-paderborn.de/kat/BearingDataCenter/"
-        self.n_folds = 2
-        self.sample_size = 1024
-        self.n_samples_acquisition = 240
+        self.n_folds = 5
+        self.sample_size = 56000
+        self.n_samples_acquisition = 4
         self.bearing_names_file = bearing_names_file
         self.bearing_names = self.get_paderborn_bearings()
         self.n_acquisitions = n_aquisitions
@@ -154,9 +154,15 @@ class Paderborn():
         files_path = {}
 
         for bearing in self.bearing_names:
+            if bearing[1] == '0':
+                tp = "Normal_"
+            elif bearing[1] == 'A':
+                tp = "OR_"
+            else:
+                tp = "IR_"
             for idx, setting in enumerate(settings_files):
                 for i in range(1, self.n_acquisitions + 1):
-                    key = bearing + "_" + str(idx) + "_" + str(i)
+                    key = tp + bearing + "_" + str(idx) + "_" + str(i)
                     files_path[key] = os.path.join(self.rawfilesdir, bearing, setting + bearing +
                                                    "_" + str(i) + ".mat")
 
@@ -197,11 +203,11 @@ class Paderborn():
             else:
                 vibration_data = matlab_file[self.files[key][19:37]]['Y'][0][0][0][6][2]
 
-            acquisition = vibration_data[0]
+            acquisition = vibration_data[0][16000:240000]
             for i in range(self.n_samples_acquisition):
                 sample = acquisition[(i * self.sample_size):((i + 1) * self.sample_size)]
                 self.signal_data = np.append(self.signal_data, np.array([sample]), axis=0)
-                self.labels = np.append(self.labels, key[0:4])
+                self.labels = np.append(self.labels, key[0])
                 self.keys = np.append(self.keys, key)
 
     def kfold(self):
@@ -278,7 +284,8 @@ class Paderborn():
             if key[0] == 'I':
                 groups = np.append(groups, n_inner % self.n_folds)
 
-            if n_keys_bearings < 4 * self.n_acquisitions * self.n_samples_acquisition:
+            #if n_keys_bearings < 4 * self.n_acquisitions * self.n_samples_acquisition: # For 4 Settings
+            if n_keys_bearings < self.n_acquisitions*self.n_samples_acquisition:
                 n_keys_bearings = n_keys_bearings + 1
             elif key[0] == 'N':
                 n_normal = n_normal + 1
