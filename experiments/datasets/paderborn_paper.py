@@ -207,11 +207,14 @@ class Paderborn():
 
             #acquisition = vibration_data[0][16000:240000]
             acquisition = vibration_data[0][:250000] # used for FaultNet
-            for i in range(self.n_samples_acquisition):
-                sample = acquisition[(i * self.sample_size):((i + 1) * self.sample_size)]
-                self.signal_data = np.append(self.signal_data, np.array([sample]), axis=0)
-                self.labels = np.append(self.labels, key[0])
-                self.keys = np.append(self.keys, key)
+            #print(len(vibration_data[0]))
+            #print(len(acquisition))
+            if len(acquisition) >= 250000: # check if acquisition have minimum required size
+                for i in range(self.n_samples_acquisition):
+                    sample = acquisition[(i * self.sample_size):((i + 1) * self.sample_size)]
+                    self.signal_data = np.append(self.signal_data, np.array([sample]), axis=0)
+                    self.labels = np.append(self.labels, key[0])
+                    self.keys = np.append(self.keys, key)
 
     def kfold(self):
 
