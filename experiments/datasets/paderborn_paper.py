@@ -110,8 +110,10 @@ class Paderborn():
         self.rawfilesdir = "paderborn_raw"
         self.url = "http://groups.uni-paderborn.de/kat/BearingDataCenter/"
         self.n_folds = 5
-        self.sample_size = 56000
-        self.n_samples_acquisition = 4
+        #self.sample_size = 56000
+        self.sample_size = 2500 # used for FaultNet
+        # self.n_samples_acquisition = 4
+        self.n_samples_acquisition = 100 # used for FaultNet
         self.bearing_names_file = bearing_names_file
         self.bearing_names = self.get_paderborn_bearings()
         self.n_acquisitions = n_aquisitions
@@ -203,7 +205,8 @@ class Paderborn():
             else:
                 vibration_data = matlab_file[self.files[key][19:37]]['Y'][0][0][0][6][2]
 
-            acquisition = vibration_data[0][16000:240000]
+            #acquisition = vibration_data[0][16000:240000]
+            acquisition = vibration_data[0][:250000] # used for FaultNet
             for i in range(self.n_samples_acquisition):
                 sample = acquisition[(i * self.sample_size):((i + 1) * self.sample_size)]
                 self.signal_data = np.append(self.signal_data, np.array([sample]), axis=0)
@@ -215,7 +218,7 @@ class Paderborn():
         if len(self.signal_data) == 0:
             self.load_acquisitions()
 
-        kf = KFold(n_splits=self.n_folds, shuffle=True, random_state=42)
+        kf = KFold(n_splits=self.n_folds, shuffle=True, random_state=20)
 
         for train, test in kf.split(self.signal_data):
             # print("Train Index: ", train, "Test Index: ", test)
