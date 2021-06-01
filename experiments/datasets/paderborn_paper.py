@@ -109,6 +109,7 @@ class Paderborn():
     def __init__(self, bearing_names_file="paderborn_bearings.csv", n_aquisitions=20):
         self.rawfilesdir = "paderborn_raw"
         self.url = "http://groups.uni-paderborn.de/kat/BearingDataCenter/"
+        #self.n_folds = 4 # For GroupKfold by Settings
         self.n_folds = 5
         #self.sample_size = 56000
         self.sample_size = 2500 # used for FaultNet
@@ -149,6 +150,8 @@ class Paderborn():
         algarism representing the setting and end with an algarism representing 
         the sample sequential. All features are separated by an underscore character.
         """
+
+        #settings_files = ["N15_M07_F10_", "N09_M07_F10_", "N15_M01_F10_", "N15_M07_F04_"]
 
         settings_files = ["N15_M07_F10_"]
 
@@ -232,7 +235,7 @@ class Paderborn():
         if len(self.signal_data) == 0:
             self.load_acquisitions()
 
-        kf = StratifiedShuffleSplit(n_splits=self.n_folds, random_state=42)
+        kf = StratifiedShuffleSplit(n_splits=self.n_folds, random_state=20)
 
         for train, test in kf.split(self.signal_data, self.labels):
             # print("Train Index: ", train, "Test Index: ", test)
