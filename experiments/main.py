@@ -69,11 +69,11 @@ def main():
             #('ResNet', auto_resnet.instantiate_auto_resnet()),
             ]
 
-    splits = [#('Kfold', 'kfold'),
-              ('StratifiedKfold', 'stratifiedkfold'),
-              ('GroupKfold by Acquisition', 'groupkfold_acquisition'),
+    splits = [('Kfold', 'kfold'),
+              #('StratifiedKfold', 'stratifiedkfold'),
+              #('GroupKfold by Acquisition', 'groupkfold_acquisition'),
               #('GroupKfold by Settings', 'groupkfold_settings'),
-              ('GroupKfold by Bearings', 'groupkfold_bearings'),
+              #('GroupKfold by Bearings', 'groupkfold_bearings'),
              ]
 
     dataset = ('Paderborn', Paderborn(bearing_names_file="paderborn_bearings_paper.csv", n_aquisitions=20))

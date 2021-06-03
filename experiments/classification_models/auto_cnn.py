@@ -19,7 +19,7 @@ class CNN(BaseEstimator, ClassifierMixin):
                  kernel_size=32,
                  filters=32,
                  optimizer='adam',
-                 epochs=99
+                 epochs=100
                  ):
         self.kernel_size = kernel_size
         self.filters = filters
