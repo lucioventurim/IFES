@@ -3,5 +3,5 @@ pip-chill==1.0.1
 pyunpack==0.2.2
 rarfile==4.0
 scikit-learn
-tensorflow==2.4.1
+tensorflow==2.4.2
 numpy~=1.19.2
