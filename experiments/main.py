@@ -76,7 +76,7 @@ def main():
               #('GroupKfold by Bearings', 'groupkfold_bearings'),
              ]
 
-    dataset = ('Paderborn', Paderborn(bearing_names_file="paderborn_bearings_paper.csv", n_aquisitions=20))
+    dataset = ('Paderborn', Paderborn(bearing_names_file="paderborn_bearings_min.csv", n_aquisitions=1))
     experimenter(dataset, clfs, splits)
 
 
