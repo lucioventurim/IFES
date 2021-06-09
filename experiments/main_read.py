@@ -13,8 +13,9 @@ def main():
     dname = os.path.dirname(abspath)
     os.chdir(dname)
 
-    #metrics.scores("2021.05.07_15.50.00.csv")
+    metrics.scores("2021.06.09_02.44.23.csv")
 
+    """
     data = np.load('raw_signal_data.npy')
 
     #print(data)
@@ -24,6 +25,7 @@ def main():
 
     print(x_n)
     print(x_n.shape)
+    """
 
 if __name__ == "__main__":
     main()
