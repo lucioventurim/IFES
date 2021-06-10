@@ -13,7 +13,7 @@ def main():
     dname = os.path.dirname(abspath)
     os.chdir(dname)
 
-    metrics.scores("2021.06.09_02.44.23.csv")
+    metrics.scores("2021.06.09_17.43.31.csv")
 
     """
     data = np.load('raw_signal_data.npy')
