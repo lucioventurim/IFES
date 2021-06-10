@@ -109,8 +109,8 @@ class Paderborn():
     def __init__(self, bearing_names_file="paderborn_bearings.csv", n_aquisitions=20):
         self.rawfilesdir = "paderborn_raw"
         self.url = "http://groups.uni-paderborn.de/kat/BearingDataCenter/"
-        #self.n_folds = 4 # For GroupKfold by Settings
-        self.n_folds = 5
+        self.n_folds = 4 # For GroupKfold by Settings
+        #self.n_folds = 5
         #self.sample_size = 56000
         self.sample_size = 2500 # used for FaultNet
         # self.n_samples_acquisition = 4
@@ -151,9 +151,9 @@ class Paderborn():
         the sample sequential. All features are separated by an underscore character.
         """
 
-        #settings_files = ["N15_M07_F10_", "N09_M07_F10_", "N15_M01_F10_", "N15_M07_F04_"]
+        settings_files = ["N15_M07_F10_", "N09_M07_F10_", "N15_M01_F10_", "N15_M07_F04_"]
 
-        settings_files = ["N15_M07_F10_"]
+        #settings_files = ["N15_M07_F10_"]
 
         # Files Paths ordered by bearings
         files_path = {}
@@ -293,8 +293,8 @@ class Paderborn():
             if key[0] == 'I':
                 groups = np.append(groups, n_inner % self.n_folds)
 
-            #if n_keys_bearings < 4 * self.n_acquisitions * self.n_samples_acquisition: # For 4 Settings
-            if n_keys_bearings < self.n_acquisitions*self.n_samples_acquisition:
+            if n_keys_bearings < 4 * self.n_acquisitions * self.n_samples_acquisition: # For 4 Settings
+            #if n_keys_bearings < self.n_acquisitions*self.n_samples_acquisition: # For Original Paper
                 n_keys_bearings = n_keys_bearings + 1
             elif key[0] == 'N':
                 n_normal = n_normal + 1
