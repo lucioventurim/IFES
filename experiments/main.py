@@ -40,9 +40,10 @@ def experimenter(dataset, clfs, splits, n_experiments):
     print("### Dataset: ", dataset[0], "###")
     write_in_file("execution_time", f"{dataset[0]}\n")
     dataset[1].download()
-    results = []
+    #results = []
     print("Performing Experiments.")
     for i in range(1, n_experiments+1):
+        results = []
         print("## Experiment N.", i, "##")
         for folds in splits:
             for clf in clfs:
@@ -55,8 +56,8 @@ def experimenter(dataset, clfs, splits, n_experiments):
                     y_pred, y_proba = run_train_test(clf[1], X_train, y_train, X_test)
                     results.append([dataset[0], folds[0], clf[0], fold_number, y_test, y_pred, y_proba])
                     fold_number = fold_number + 1
-    saved_results = persist_results.save_results(results)
-    metrics.scores(saved_results)
+        saved_results = persist_results.save_results(results)
+        metrics.scores(saved_results)
 
 
 def main():
@@ -64,7 +65,7 @@ def main():
     dname = os.path.dirname(abspath)
     os.chdir(dname)
 
-    clfs = [('K-Nearest Neighbors', auto_knn.instantiate_auto_knn()),
+    clfs = [#('K-Nearest Neighbors', auto_knn.instantiate_auto_knn()),
             ('Random Forest', auto_random_forest.instantiate_auto_random_forest()),
             ('FaultNet', auto_cnn.instantiate_auto_cnn()),
             #('Logistic Regression', auto_lr.instantiate_auto_lr()),
@@ -79,7 +80,7 @@ def main():
              ]
 
     n_experiments = 10
-    dataset = ('Paderborn', Paderborn(bearing_names_file="paderborn_bearings_paper.csv", n_aquisitions=20))
+    dataset = ('Paderborn', Paderborn(bearing_names_file="paderborn_bearings.csv", n_aquisitions=20))
     experimenter(dataset, clfs, splits, n_experiments)
 
 
