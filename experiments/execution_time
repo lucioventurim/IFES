@@ -391,3 +391,13 @@ Kfold - K-Nearest Neighbors
 4: 39.96247334899999 s
 5: 39.9046426900004 s
 6937.934188138999 s
+Paderborn
+GroupKfold by Acquisition - K-Nearest Neighbors
+Paderborn
+GroupKfold by Acquisition - Random Forest
+1: 203.25816895999014 s
+2: 204.52220862598915 s
+3: 197.80470241699368 s
+4: 198.1620894640073 s
+GroupKfold by Acquisition - FaultNet
+1: 
