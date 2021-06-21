@@ -13,19 +13,8 @@ def main():
     dname = os.path.dirname(abspath)
     os.chdir(dname)
 
-    metrics.scores("2021.06.10_12.29.24.csv")
+    metrics.scores("2021.06.21_14.59.47.csv")
 
-    """
-    data = np.load('raw_signal_data.npy')
-
-    #print(data)
-    print(data.shape)
-
-    x_n = sig_image(data, 50)
-
-    print(x_n)
-    print(x_n.shape)
-    """
 
 if __name__ == "__main__":
     main()
