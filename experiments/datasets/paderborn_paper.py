@@ -21,7 +21,6 @@ from pyunpack import Archive
 # Code to avoid incomplete array results
 np.set_printoptions(threshold=sys.maxsize)
 
-
 def download_file(url, dirname, dir_rar, bearing):
     print("Downloading Bearing Data:", bearing)
     file_name = bearing + ".rar"

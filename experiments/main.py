@@ -10,6 +10,7 @@ import numpy as np
 from datasets.mfpt import MFPT
 #from datasets.paderborn import Paderborn
 from datasets.paderborn_paper import Paderborn
+from datasets.ottawa import Ottawa
 
 def write_in_file(file_name, message):
     with open(file_name, 'a') as file:
@@ -66,21 +67,23 @@ def main():
     os.chdir(dname)
 
     clfs = [('K-Nearest Neighbors', auto_knn.instantiate_auto_knn()),
-            #('Random Forest', auto_random_forest.instantiate_auto_random_forest()),
-            #('FaultNet', auto_cnn.instantiate_auto_cnn()),
+            ('Random Forest', auto_random_forest.instantiate_auto_random_forest()),
+            ('FaultNet', auto_cnn.instantiate_auto_cnn()),
             #('Logistic Regression', auto_lr.instantiate_auto_lr()),
             #('ResNet', auto_resnet.instantiate_auto_resnet()),
             ]
 
-    splits = [('Kfold', 'kfold'),
-              #('StratifiedKfold', 'stratifiedkfold'),
-              #('GroupKfold by Acquisition', 'groupkfold_acquisition'),
+    splits = [#('Kfold', 'kfold'),
+              ('StratifiedKfold', 'stratifiedkfold'),
+              ('GroupKfold by Acquisition', 'groupkfold_acquisition'),
               ('GroupKfold by Settings', 'groupkfold_settings'),
-              ('GroupKfold by Bearings', 'groupkfold_bearings'),
+              #('GroupKfold by Bearings', 'groupkfold_bearings'),
              ]
 
     n_experiments = 1
-    dataset = ('Paderborn', Paderborn(bearing_names_file="paderborn_bearings.csv", n_aquisitions=20))
+    #dataset = ('Paderborn', Paderborn(bearing_names_file="paderborn_bearings.csv", n_aquisitions=20))
+    #dataset = ('MFPT', MFPT())
+    dataset = ('Ottawa', Ottawa())
     experimenter(dataset, clfs, splits, n_experiments)
 
 

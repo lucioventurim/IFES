@@ -6,42 +6,47 @@ import urllib.request
 import scipy.io
 import numpy as np
 import os
-from sklearn.model_selection import KFold, StratifiedKFold
+from sklearn.model_selection import KFold, GroupKFold, StratifiedShuffleSplit
 import shutil
 import zipfile
-import datasets.folding as folding
+import sys
 
 # Unpack Tools
 from pyunpack import Archive
 
+# Code to avoid incomplete array results
+np.set_printoptions(threshold=sys.maxsize)
 
 def download_file(url, dirname, zip_name):
     print("Downloading Bearings Data.")
 
-    req = urllib.request.Request(url, method='HEAD')
-    f = urllib.request.urlopen(req)
-    file_size = int(f.headers['Content-Length'])
+    try:
+        req = urllib.request.Request(url, method='HEAD')
+        f = urllib.request.urlopen(req)
+        file_size = int(f.headers['Content-Length'])
 
-    dir_path = os.path.join(dirname, zip_name)
-    if not os.path.exists(dir_path):
-        urllib.request.urlretrieve(url, dir_path)
-        downloaded_file_size = os.stat(dir_path).st_size
-    else:
-        downloaded_file_size = os.stat(dir_path).st_size
+        dir_path = os.path.join(dirname, zip_name)
+        if not os.path.exists(dir_path):
+            urllib.request.urlretrieve(url, dir_path)
+            downloaded_file_size = os.stat(dir_path).st_size
+        else:
+            downloaded_file_size = os.stat(dir_path).st_size
 
-    if file_size != downloaded_file_size:
-        os.remove(dir_path)
-        print("File Size Incorrect. Downloading Again.")
+        if file_size != downloaded_file_size:
+            os.remove(dir_path)
+            print("File Size Incorrect. Downloading Again.")
+            download_file(url, dirname, zip_name)
+    except Exception as e:
+        print("Error occurs when downloading file: " + str(e))
+        print("Trying do download again")
         download_file(url, dirname, zip_name)
 
 
 def extract_zip(dirname, zip_name):
     print("Extracting Bearings Data.")
-
     dir_bearing_zip = os.path.join(dirname, zip_name)
     dir_mfpt_data = "MFPT Fault Data Sets"
     dir_bearing_data = os.path.join(dirname, dir_mfpt_data)
-
     if not os.path.exists(dir_bearing_data):
         file_name = dir_bearing_zip
         Archive(file_name).extractall(dirname)
@@ -88,7 +93,13 @@ class MFPT():
                   "I": [(7, 146484)]}
 
         self.n_folds = 3
-        self.sample_size = 8192
+        #self.sample_size = 8192
+        self.sample_size = 2500
+        self.n_samples_acquisition = 100  # used for FaultNet
+
+        self.signal_data = np.empty((0, self.sample_size))
+        self.labels = []
+        self.keys = []
 
         """
         The MFPT dataset is divided into 3 kinds of states: normal state, inner race
@@ -141,6 +152,8 @@ class MFPT():
 
         zip_name = "MFPT-Fault-Data-Sets-20200227T131140Z-001.zip"
 
+        print("Downloading and Extracting ZIP file:")
+
         download_file(url, dirname, zip_name)
         extract_zip(dirname, zip_name)
 
@@ -160,124 +173,45 @@ class MFPT():
                 vibration_data_raw = matlab_file['bearing'][0][0][2]
 
             vibration_data = np.array([ elem for singleList in vibration_data_raw for elem in singleList])
-
-            #print(len(vibration_data))
-            yield key, vibration_data
+            for i in range(len(vibration_data)//self.sample_size):
+                sample = vibration_data[(i * self.sample_size):((i + 1) * self.sample_size)]
+                self.signal_data = np.append(self.signal_data, np.array([sample]), axis=0)
+                self.labels = np.append(self.labels, key[0])
+                self.keys = np.append(self.keys, key)
 
     def kfold(self):
 
-        X = np.empty((0,self.sample_size))
-        y = []
+        if len(self.signal_data) == 0:
+            self.load_acquisitions()
 
-        for key, acquisition in self.load_acquisitions():
-            acquisition_size = len(acquisition)
-            samples_acquisition = acquisition_size // self.sample_size
-            for i in range(samples_acquisition):
-                sample = acquisition[(i * self.sample_size):((i + 1) * self.sample_size)]
-                X = np.append(X, np.array([sample]), axis=0)
-                y = np.append(y, key[0])
+        kf = KFold(n_splits=self.n_folds, shuffle=True, random_state=20)
 
-        #print(len(X))
-        kf = KFold(n_splits=self.n_folds)
-
-        for train, test in kf.split(X):
+        for train, test in kf.split(self.signal_data):
             # print("Train Index: ", train, "Test Index: ", test)
-            yield X[train], y[train], X[test], y[test]
-
+            yield self.signal_data[train], self.labels[train], self.signal_data[test], self.labels[test]
 
     def stratifiedkfold(self):
 
-        X = np.empty((0,self.sample_size))
-        y = []
+        if len(self.signal_data) == 0:
+            self.load_acquisitions()
 
-        for key, acquisition in self.load_acquisitions():
-            acquisition_size = len(acquisition)
-            samples_acquisition = acquisition_size // self.sample_size
-            for i in range(samples_acquisition):
-                sample = acquisition[(i * self.sample_size):((i + 1) * self.sample_size)]
-                X = np.append(X, np.array([sample]), axis=0)
-                y = np.append(y, key[0])
+        kf = StratifiedShuffleSplit(n_splits=self.n_folds, random_state=20)
 
-        #print(X)
-        kf = StratifiedKFold(n_splits=self.n_folds)
-
-        for train, test in kf.split(X, y):
-            #print("Train Index: ", train, "Test Index: ", test)
-            yield X[train], y[train], X[test], y[test]
+        for train, test in kf.split(self.signal_data, self.labels):
+            # print("Train Index: ", train, "Test Index: ", test)
+            yield self.signal_data[train], self.labels[train], self.signal_data[test], self.labels[test]
 
     def groupkfold_acquisition(self):
 
-        # Define folds index by samples sequential
-        samples_index = folding.group_folds_index(self.conditions, self.sample_size, self.n_folds)
-        # print(samples_index)
+        if len(self.signal_data) == 0:
+            self.load_acquisitions()
 
-        # Define folds split
-        folds = folding.group_folds_split(self.n_folds, samples_index)
-        # print(folds)
+        groups = []
+        for i in self.keys:
+            groups = np.append(groups, int(i[-1]) % self.n_folds)
 
-        # Define folds index by samples
-        """
-        samples_index = [0]
-        final_sample = 0
-        for condition in self.conditions.items():
-            for acquisitions_details in condition[1]:
-                samples_acquisition = acquisitions_details[1] // self.sample_size
-                n_samples = acquisitions_details[0] * samples_acquisition
-                fold_size_groups = acquisitions_details[0] // self.n_folds
-                fold_size = fold_size_groups * samples_acquisition
-                for i in range(self.n_folds - 1):
-                    samples_index.append(samples_index[-1] + fold_size)
-                final_sample = final_sample + n_samples
-                samples_index.append(final_sample)
+        kf = GroupKFold(n_splits=self.n_folds)
 
-        #print(samples_index)
-
-        # Define folds split
-        folds_split = []
-        for i in range(self.n_folds):
-            splits = [0] * self.n_folds
-            splits[i] = 1
-            folds_split.append(splits)
-
-        # print(folds_split)
-
-        folds = []
-        for split in folds_split:
-            fold_dict = {}
-            for k in range(len(samples_index) - 1):
-                pos = k % self.n_folds
-                if split[pos] == 1:
-                    fold_dict[(samples_index[k], samples_index[k + 1])] = "test"
-                else:
-                    fold_dict[(samples_index[k], samples_index[k + 1])] = "train"
-            folds.append(fold_dict)
-
-        # print(folds)
-        """
-        # Yield folds
-        for f in folds:
-            #print("Folds by samples index: ", f)
-            X_train = []
-            y_train = []
-            X_test = []
-            y_test = []
-
-            counter = 0
-            for key, acquisition in self.load_acquisitions():
-                acquisition_size = len(acquisition)
-                samples_acquisition_fold = acquisition_size // self.sample_size
-                for i in range(samples_acquisition_fold):
-                    sample = acquisition[(i * self.sample_size):((i + 1) * self.sample_size)]
-                    res = ""
-                    for (k1, k2) in f:
-                        if (k1 <= counter and k2 > counter):
-                            res = f[(k1, k2)]
-                    if res == "train":
-                        X_train.append(sample)
-                        y_train.append(key[0])
-                    else:
-                        X_test.append(sample)
-                        y_test.append(key[0])
-                    counter = counter + 1
-
-            yield X_train, y_train, X_test, y_test
+        for train, test in kf.split(self.signal_data, self.labels, groups):
+            # print("Train Index: ", train, "Test Index: ", test)
+            yield self.signal_data[train], self.labels[train], self.signal_data[test], self.labels[test]
