@@ -209,8 +209,9 @@ class Ottawa():
             self.load_acquisitions()
 
         groups = []
+
         for i in self.keys:
-            groups = np.append(groups, int(i[-1]) % self.n_folds)
+            groups = np.append(groups, i)
 
         kf = GroupKFold(n_splits=self.n_folds)
 
