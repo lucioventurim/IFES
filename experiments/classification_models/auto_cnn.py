@@ -6,17 +6,6 @@ from tensorflow.keras.utils import to_categorical
 from sklearn.base import BaseEstimator, ClassifierMixin
 import numpy as np
 
-from tensorflow import config
-physical_devices = config.experimental.list_physical_devices('GPU')
-if len(physical_devices) > 0:
-   config.experimental.set_memory_growth(physical_devices[0], True)
-
-def sig_image(data,size):
-    X=np.zeros((data.shape[0],size,size))
-    for i in range(data.shape[0]):
-        X[i]=(data[i,:].reshape(size,size))
-    return X.astype(np.float16)
-
 
 class CNN(BaseEstimator, ClassifierMixin):
     def __init__(self,
@@ -37,17 +26,10 @@ class CNN(BaseEstimator, ClassifierMixin):
         optimizer = self.optimizer
         epochs = self.epochs
 
-        #x_n = sig_image(X, 50)
-        #print(x_n)
-        #print(x_n.shape)
-
-
         # Define input shapes
-        #self.n_samples = X.shape[0]
         self.n_steps = X.shape[1]
 
         X = X.reshape((X.shape[0], X.shape[1], self.n_features))
-        #x_n = x_n.reshape((x_n.shape[0], x_n.shape[1], x_n.shape[2], self.n_features))
 
         self.labels, ids = np.unique(y, return_inverse=True)
         y_cat = to_categorical(ids)
@@ -94,14 +76,10 @@ class CNN(BaseEstimator, ClassifierMixin):
 
     def predict_proba(self, X, y=None):
         X = X.reshape((X.shape[0], X.shape[1], self.n_features))
-        #X = sig_image(X, 50)
-        #X = X.reshape((X.shape[0], X.shape[1], X.shape[2], self.n_features))
         return self.model.predict(X)
 
     def predict(self, X, y=None):
         X = X.reshape((X.shape[0], X.shape[1], self.n_features))
-        #X = sig_image(X, 50)
-        #X = X.reshape((X.shape[0], X.shape[1], X.shape[2], self.n_features))
         predictions = self.model.predict(X)
         return self.labels[np.argmax(predictions, axis=1)]
 
