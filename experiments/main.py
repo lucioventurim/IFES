@@ -7,6 +7,8 @@ import os
 
 import numpy as np
 
+os.environ['TF_FORCE_GPU_ALLOW_GROWTH'] = 'true'
+
 from datasets.mfpt import MFPT
 #from datasets.paderborn import Paderborn
 from datasets.paderborn_paper import Paderborn
