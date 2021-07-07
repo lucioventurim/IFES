@@ -7,8 +7,6 @@ import os
 
 import numpy as np
 
-os.environ['TF_FORCE_GPU_ALLOW_GROWTH'] = 'true'
-
 from datasets.mfpt import MFPT
 #from datasets.paderborn import Paderborn
 from datasets.paderborn_paper import Paderborn
@@ -72,7 +70,7 @@ def main():
             #('Random Forest', auto_random_forest.instantiate_auto_random_forest()),
             #('FaultNet', auto_faultnet.instantiate_auto_cnn()),
             #('Logistic Regression', auto_lr.instantiate_auto_lr()),
-            ('ResNet', auto_cnn.instantiate_auto_cnn()),
+            ('CNN', auto_cnn.instantiate_auto_cnn()),
             ]
 
     splits = [#('Kfold', 'kfold'),

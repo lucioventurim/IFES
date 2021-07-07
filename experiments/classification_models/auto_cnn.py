@@ -5,7 +5,8 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.utils import to_categorical
 from sklearn.base import BaseEstimator, ClassifierMixin
 import numpy as np
-
+import os
+os.environ['TF_FORCE_GPU_ALLOW_GROWTH'] = 'true'
 
 def sig_image(data,size):
     X=np.zeros((data.shape[0],size,size))
