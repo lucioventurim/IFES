@@ -33,33 +33,51 @@ class CNN(BaseEstimator, ClassifierMixin):
         optimizer = self.optimizer
         epochs = self.epochs
 
-        x_n = sig_image(X, 50)
+        #x_n = sig_image(X, 50)
         #print(x_n)
         #print(x_n.shape)
 
 
         # Define input shapes
-        self.n_samples = x_n.shape[0]
-        self.n_steps = x_n.shape[1]
+        #self.n_samples = X.shape[0]
+        self.n_steps = X.shape[1]
 
-        #X = X.reshape((X.shape[0], X.shape[1], self.n_features))
-        x_n = x_n.reshape((x_n.shape[0], x_n.shape[1], x_n.shape[2], self.n_features))
+        X = X.reshape((X.shape[0], X.shape[1], self.n_features))
+        #x_n = x_n.reshape((x_n.shape[0], x_n.shape[1], x_n.shape[2], self.n_features))
 
         self.labels, ids = np.unique(y, return_inverse=True)
         y_cat = to_categorical(ids)
         num_classes = y_cat.shape[1]
 
         self.model = Sequential()
+        self.model.add(layers.InputLayer(input_shape=(self.n_steps, self.n_features)))
+        self.model.add(layers.Conv1D(100, 6, activation='relu'))
+        self.model.add(layers.Conv1D(100, 6, activation='relu'))
+        self.model.add(layers.MaxPooling1D(3))
+        self.model.add(layers.Conv1D(160, 6, activation='relu'))
+        self.model.add(layers.Conv1D(160, 6, activation='relu'))
+        self.model.add(layers.GlobalAveragePooling1D(name='G_A_P_1D'))
+        self.model.add(layers.Dropout(0.5))
+        self.model.add(layers.Dense(num_classes))
+        self.model.add(layers.Activation('softmax'))
+        self.model.compile(loss='categorical_crossentropy',
+                           optimizer=optimizer,
+                           metrics=["categorical_accuracy"])
+        self.model.fit(X, y_cat, epochs=epochs, verbose=False)
+
+        """
+        self.model = Sequential()
         #self.model.add(layers.InputLayer(input_shape=(self.n_steps, self.n_features)))
         self.model.add(layers.InputLayer(input_shape=(self.n_steps, self.n_steps, self.n_features)))
-        self.model.add(layers.Conv2D(filters=32, kernel_size=4, strides=(1,1), padding='same'))
-        self.model.add(layers.MaxPooling2D(pool_size=(2,2), strides=(2,2)))
-        self.model.add(layers.Activation('relu'))
-        self.model.add(layers.Conv2D(filters=64, kernel_size=4, strides=1))
-        self.model.add(layers.MaxPooling2D(pool_size=(2,2), strides=(2,2)))
-        self.model.add(layers.Activation('relu'))
-        self.model.add(layers.Dense(256, activation='relu'))
-        self.model.add(layers.Dropout(0.2))
+        self.model.add(layers.Conv2D(32, (3, 3), activation="relu", strides=1))
+        self.model.add(layers.MaxPooling2D(pool_size=(2, 2), strides=1))
+        self.model.add(layers.Conv2D(64, (3, 3), activation="relu", strides=1))
+        self.model.add(layers.MaxPooling2D(pool_size=(2, 2), strides=1))
+        #self.model.add(layers.MaxPooling2D(pool_size=(2,2), strides=(2,2)))
+        self.model.add(layers.Conv2D(128, (3, 3), activation="relu", strides=1))
+        self.model.add(layers.MaxPooling2D(pool_size=(2, 2), strides=1))
+        self.model.add(layers.Dense(160, activation='relu'))
+        self.model.add(layers.Dense(80, activation='relu'))
         self.model.add(layers.Flatten())
         self.model.add(layers.Dense(num_classes))
         self.model.add(layers.Activation('softmax'))
@@ -67,18 +85,19 @@ class CNN(BaseEstimator, ClassifierMixin):
                            optimizer=optimizer,
                            metrics=["categorical_accuracy"])
         self.model.fit(x_n, y_cat, epochs=epochs, verbose=False)
+        """
 
 
     def predict_proba(self, X, y=None):
-        #X = X.reshape((X.shape[0], X.shape[1], self.n_features))
-        X = sig_image(X, 50)
-        X = X.reshape((X.shape[0], X.shape[1], X.shape[2], self.n_features))
+        X = X.reshape((X.shape[0], X.shape[1], self.n_features))
+        #X = sig_image(X, 50)
+        #X = X.reshape((X.shape[0], X.shape[1], X.shape[2], self.n_features))
         return self.model.predict(X)
 
     def predict(self, X, y=None):
-        #X = X.reshape((X.shape[0], X.shape[1], self.n_features))
-        X = sig_image(X, 50)
-        X = X.reshape((X.shape[0], X.shape[1], X.shape[2], self.n_features))
+        X = X.reshape((X.shape[0], X.shape[1], self.n_features))
+        #X = sig_image(X, 50)
+        #X = X.reshape((X.shape[0], X.shape[1], X.shape[2], self.n_features))
         predictions = self.model.predict(X)
         return self.labels[np.argmax(predictions, axis=1)]
 

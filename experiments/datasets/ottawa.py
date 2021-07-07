@@ -171,8 +171,8 @@ class Ottawa():
         for key in self.files:
             matlab_file = scipy.io.loadmat(self.files[key])
 
-            vibration_data = np.array([elem for singleList in matlab_file['Channel_1'] for elem in singleList])
-            #vibration_data = np.array([elem for singleList in matlab_file['Channel_1'][0:50000] for elem in singleList])
+            #vibration_data = np.array([elem for singleList in matlab_file['Channel_1'] for elem in singleList])
+            vibration_data = np.array([elem for singleList in matlab_file['Channel_1'][0:50000] for elem in singleList])
 
             for i in range(len(vibration_data)//self.sample_size):
                 sample = vibration_data[(i * self.sample_size):((i + 1) * self.sample_size)]
