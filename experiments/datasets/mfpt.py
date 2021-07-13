@@ -6,7 +6,7 @@ import urllib.request
 import scipy.io
 import numpy as np
 import os
-from sklearn.model_selection import KFold, GroupKFold, StratifiedShuffleSplit
+from sklearn.model_selection import KFold, GroupKFold, StratifiedShuffleSplit, GroupShuffleSplit
 import shutil
 import zipfile
 import sys
@@ -88,11 +88,7 @@ class MFPT():
     def __init__(self):
         self.rawfilesdir = "mfpt_raw"
         self.url="https://mfpt.org/wp-content/uploads/2020/02/MFPT-Fault-Data-Sets-20200227T131140Z-001.zip"
-        self.conditions = {"N": [(3, 585936)],
-                  "O": [(3, 585936), (7, 146484)],
-                  "I": [(7, 146484)]}
-
-        self.n_folds = 3
+        self.n_folds = 5
         #self.sample_size = 8192
         self.sample_size = 2500
         self.n_samples_acquisition = 100  # used for FaultNet
@@ -184,7 +180,7 @@ class MFPT():
         if len(self.signal_data) == 0:
             self.load_acquisitions()
 
-        kf = KFold(n_splits=self.n_folds, shuffle=True, random_state=20)
+        kf = KFold(n_splits=self.n_folds, shuffle=True)
 
         for train, test in kf.split(self.signal_data):
             # print("Train Index: ", train, "Test Index: ", test)
@@ -195,7 +191,7 @@ class MFPT():
         if len(self.signal_data) == 0:
             self.load_acquisitions()
 
-        kf = StratifiedShuffleSplit(n_splits=self.n_folds, random_state=20)
+        kf = StratifiedShuffleSplit(n_splits=self.n_folds)
 
         for train, test in kf.split(self.signal_data, self.labels):
             # print("Train Index: ", train, "Test Index: ", test)
@@ -208,9 +204,11 @@ class MFPT():
 
         groups = []
         for i in self.keys:
-            groups = np.append(groups, int(i[-1]) % self.n_folds)
+            #groups = np.append(groups, int(i[-1]) % self.n_folds)
+            groups = np.append(groups, i)
 
-        kf = GroupKFold(n_splits=self.n_folds)
+        #kf = GroupKFold(n_splits=self.n_folds)
+        kf = GroupShuffleSplit(n_splits=self.n_folds)
 
         for train, test in kf.split(self.signal_data, self.labels, groups):
             # print("Train Index: ", train, "Test Index: ", test)

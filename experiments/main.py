@@ -1,5 +1,5 @@
 
-from classification_models import auto_knn, auto_random_forest, auto_lr
+from classification_models import auto_knn, auto_random_forest, auto_lr, auto_svm, auto_mlp
 from classification_models import auto_faultnet
 from classification_models import auto_cnn
 from utils import persist_results, metrics
@@ -70,20 +70,22 @@ def main():
             #('Random Forest', auto_random_forest.instantiate_auto_random_forest()),
             #('FaultNet', auto_faultnet.instantiate_auto_cnn()),
             #('Logistic Regression', auto_lr.instantiate_auto_lr()),
+            #('SVM', auto_svm.instantiate_auto_svm()),
+            #('MLP', auto_mlp.instantiate_auto_mlp()),
             ('CNN', auto_cnn.instantiate_auto_cnn()),
             ]
 
     splits = [#('Kfold', 'kfold'),
               ('StratifiedKfold', 'stratifiedkfold'),
               ('GroupKfold by Acquisition', 'groupkfold_acquisition'),
-              ('GroupKfold by Settings', 'groupkfold_settings'),
+              #('GroupKfold by Settings', 'groupkfold_settings'),
               #('GroupKfold by Bearings', 'groupkfold_bearings'),
              ]
 
-    n_experiments = 1
+    n_experiments = 10
     #dataset = ('Paderborn', Paderborn(bearing_names_file="paderborn_bearings.csv", n_aquisitions=20))
-    #dataset = ('MFPT', MFPT())
-    dataset = ('Ottawa', Ottawa())
+    dataset = ('MFPT', MFPT())
+    #dataset = ('Ottawa', Ottawa())
     experimenter(dataset, clfs, splits, n_experiments)
 
 

@@ -51,27 +51,7 @@ class CNN(BaseEstimator, ClassifierMixin):
                            metrics=["categorical_accuracy"])
         self.model.fit(X, y_cat, epochs=epochs, verbose=False)
 
-        """
-        self.model = Sequential()
-        #self.model.add(layers.InputLayer(input_shape=(self.n_steps, self.n_features)))
-        self.model.add(layers.InputLayer(input_shape=(self.n_steps, self.n_steps, self.n_features)))
-        self.model.add(layers.Conv2D(32, (3, 3), activation="relu", strides=1))
-        self.model.add(layers.MaxPooling2D(pool_size=(2, 2), strides=1))
-        self.model.add(layers.Conv2D(64, (3, 3), activation="relu", strides=1))
-        self.model.add(layers.MaxPooling2D(pool_size=(2, 2), strides=1))
-        #self.model.add(layers.MaxPooling2D(pool_size=(2,2), strides=(2,2)))
-        self.model.add(layers.Conv2D(128, (3, 3), activation="relu", strides=1))
-        self.model.add(layers.MaxPooling2D(pool_size=(2, 2), strides=1))
-        self.model.add(layers.Dense(160, activation='relu'))
-        self.model.add(layers.Dense(80, activation='relu'))
-        self.model.add(layers.Flatten())
-        self.model.add(layers.Dense(num_classes))
-        self.model.add(layers.Activation('softmax'))
-        self.model.compile(loss='categorical_crossentropy',
-                           optimizer=optimizer,
-                           metrics=["categorical_accuracy"])
-        self.model.fit(x_n, y_cat, epochs=epochs, verbose=False)
-        """
+
 
 
     def predict_proba(self, X, y=None):
