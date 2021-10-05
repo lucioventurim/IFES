@@ -10,6 +10,8 @@ from sklearn.model_selection import KFold, GroupKFold, StratifiedShuffleSplit, G
 import shutil
 import zipfile
 import sys
+import ssl
+import requests
 
 # Unpack Tools
 from pyunpack import Archive
@@ -21,13 +23,17 @@ def download_file(url, dirname, zip_name):
     print("Downloading Bearings Data.")
 
     try:
-        req = urllib.request.Request(url, method='HEAD')
-        f = urllib.request.urlopen(req)
+        req = urllib.request.Request(url, headers={'User-Agent': 'XYZ/3.0'})
+        gcontext = ssl.SSLContext()
+
+        f = urllib.request.urlopen(req, timeout=10, context=gcontext)
         file_size = int(f.headers['Content-Length'])
 
         dir_path = os.path.join(dirname, zip_name)
         if not os.path.exists(dir_path):
-            urllib.request.urlretrieve(url, dir_path)
+            downloaded_obj = requests.get(url)
+            with open(dir_path, "wb") as file:
+                file.write(downloaded_obj.content)
             downloaded_file_size = os.stat(dir_path).st_size
         else:
             downloaded_file_size = os.stat(dir_path).st_size
@@ -90,7 +96,7 @@ class MFPT():
         self.url="https://mfpt.org/wp-content/uploads/2020/02/MFPT-Fault-Data-Sets-20200227T131140Z-001.zip"
         self.n_folds = 5
         #self.sample_size = 8192
-        self.sample_size = 2500
+        self.sample_size = 4096
         self.n_samples_acquisition = 100  # used for FaultNet
 
         self.signal_data = np.empty((0, self.sample_size))
