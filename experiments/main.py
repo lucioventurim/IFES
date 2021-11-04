@@ -89,6 +89,7 @@ def main():
     dataset = ('MFPT', MFPT())
     #dataset = ('Ottawa', Ottawa())
     #dataset = ('CWRU', CWRU(bearing_names_file="cwru_bearings.csv"))
+    #dataset = ('CWRU', CWRU(bearing_names_file="cwru_bearings_debug.csv"))
     experimenter(dataset, clfs, splits, n_experiments)
 
 
