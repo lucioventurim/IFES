@@ -5,3 +5,4 @@ rarfile==4.0
 scikit-learn
 tensorflow
 numpy~=1.19.2
+PyWavelets

@@ -3,14 +3,14 @@
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import GridSearchCV
-from features_extractors.statistical import Statistical
+from features_extractors.heterogeneous import Heterogeneous
 from sklearn.linear_model import LogisticRegression
 
 
 def instantiate_auto_lr():
 
     lr = Pipeline([
-                    ('FeatureExtraction', Statistical()),
+                    ('FeatureExtraction', Heterogeneous()),
                     ('scaler', StandardScaler()),
                     ('lr', LogisticRegression(max_iter=10000)),
                     ])
