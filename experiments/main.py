@@ -79,16 +79,16 @@ def main():
     splits = [#('Kfold', 'kfold'),
               ('StratifiedKfold', 'stratifiedkfold'),
               ('GroupKfold by Acquisition', 'groupkfold_acquisition'),
-              #('GroupKfold by Settings', 'groupkfold_settings'),
+              ('GroupKfold by Settings', 'groupkfold_settings'),
               #('GroupKfold by Bearings', 'groupkfold_bearings'),
-              #('GroupKfold by Severity', 'groupkfold_severity'),
+              ('GroupKfold by Severity', 'groupkfold_severity'),
              ]
 
     n_experiments = 10
     #dataset = ('Paderborn', Paderborn(bearing_names_file="paderborn_bearings.csv", n_aquisitions=20))
-    dataset = ('MFPT', MFPT())
+    #dataset = ('MFPT', MFPT())
     #dataset = ('Ottawa', Ottawa())
-    #dataset = ('CWRU', CWRU(bearing_names_file="cwru_bearings.csv"))
+    dataset = ('CWRU', CWRU(bearing_names_file="cwru_bearings.csv"))
     #dataset = ('CWRU', CWRU(bearing_names_file="cwru_bearings_debug.csv"))
     experimenter(dataset, clfs, splits, n_experiments)
 

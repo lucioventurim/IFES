@@ -83,12 +83,17 @@ class Ottawa():
     load_acquisitions()
       Extract data from files
     """
-    def __init__(self):
+    def __init__(self, downsample = False):
         self.rawfilesdir = "ottawa_raw"
         self.url="https://md-datasets-cache-zipfiles-prod.s3.eu-west-1.amazonaws.com/v43hmbwxpm-1.zip"
 
         self.n_folds = 4
-        self.sample_size = 2500
+
+        if downsample:
+            self.sample_size = 16384
+        else:
+            self.sample_size = 32768
+
         self.n_samples_acquisition = 100  # used for FaultNet
 
         self.signal_data = np.empty((0, self.sample_size))
