@@ -175,28 +175,28 @@ class Ottawa():
 
         for key in self.files:
 
-            #matlab_file = scipy.io.loadmat(self.files[key])
+            matlab_file = scipy.io.loadmat(self.files[key])
 
-            #vibration_data = np.array([elem for singleList in matlab_file['Channel_1'] for elem in singleList])
+            vibration_data = np.array([elem for singleList in matlab_file['Channel_1'] for elem in singleList])
             #vibration_data = np.array([elem for singleList in matlab_file['Channel_1'][0:15000] for elem in singleList])
 
-            #for i in range(len(vibration_data)//self.sample_size):
-            #    sample = vibration_data[(i * self.sample_size):((i + 1) * self.sample_size)]
-            #    self.signal_data = np.append(self.signal_data, np.array([sample]), axis=0)
-            #    self.labels = np.append(self.labels, key[0])
-            self.keys = np.append(self.keys, key)
+            for i in range(len(vibration_data)//self.sample_size):
+                sample = vibration_data[(i * self.sample_size):((i + 1) * self.sample_size)]
+                self.signal_data = np.append(self.signal_data, np.array([sample]), axis=0)
+                self.labels = np.append(self.labels, key[0])
+                self.keys = np.append(self.keys, key)
 
-        groups = []
-        for i in self.keys:
-            groups = np.append(groups, i[2])
+        #groups = []
+        #for i in self.keys:
+        #    groups = np.append(groups, i[2])
 
-        print(groups)
+        #print(groups)
 
-        kf = GroupKFold(n_splits=self.n_folds)
+        #kf = GroupKFold(n_splits=self.n_folds)
 
-        for train, test in kf.split(self.keys, self.keys, groups):
+        #for train, test in kf.split(self.keys, self.keys, groups):
             # print("Train Index: ", train, "Test Index: ", test)
-            print(self.keys[train], self.keys[test])
+        #    print(self.keys[train], self.keys[test])
 
 
     def kfold(self):
@@ -246,7 +246,7 @@ class Ottawa():
         for i in self.keys:
             groups = np.append(groups, i[2])
 
-        print(groups)
+        #print(groups)
 
         kf = GroupKFold(n_splits=self.n_folds)
 
