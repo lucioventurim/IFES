@@ -207,7 +207,8 @@ class Paderborn():
                 vibration_data = matlab_file[self.files[key][19:37]]['Y'][0][0][0][6][2]
 
             acquisition = vibration_data[0]
-            for i in range(self.n_samples_acquisition):
+            self.n_samples_acquisition = len(acquisition)//self.sample_size
+            for i in range(len(acquisition)//self.sample_size):
                 sample = acquisition[(i * self.sample_size):((i + 1) * self.sample_size)]
                 self.signal_data = np.append(self.signal_data, np.array([sample]), axis=0)
                 self.labels = np.append(self.labels, key[0])

@@ -8,8 +8,7 @@ import os
 import numpy as np
 
 from datasets.mfpt import MFPT
-#from datasets.paderborn import Paderborn
-from datasets.paderborn_paper import Paderborn
+from datasets.paderborn import Paderborn
 from datasets.ottawa import Ottawa
 from datasets.cwru import CWRU
 
@@ -67,28 +66,28 @@ def main():
     dname = os.path.dirname(abspath)
     os.chdir(dname)
 
-    clfs = [('K-Nearest Neighbors', auto_knn.instantiate_auto_knn()),
-            ('Random Forest', auto_random_forest.instantiate_auto_random_forest()),
-            #('FaultNet', auto_faultnet.instantiate_auto_cnn()),
+    clfs = [#('K-Nearest Neighbors', auto_knn.instantiate_auto_knn()),
+            #('Random Forest', auto_random_forest.instantiate_auto_random_forest()),
+            ('FaultNet', auto_faultnet.instantiate_auto_cnn()),
             #('Logistic Regression', auto_lr.instantiate_auto_lr()),
-            ('SVM', auto_svm.instantiate_auto_svm()),
-            ('MLP', auto_mlp.instantiate_auto_mlp()),
-            ('CNN', auto_cnn.instantiate_auto_cnn()),
+            #('SVM', auto_svm.instantiate_auto_svm()),
+            #('MLP', auto_mlp.instantiate_auto_mlp()),
+            #('CNN', auto_cnn.instantiate_auto_cnn()),
             ]
 
     splits = [#('Kfold', 'kfold'),
               ('StratifiedKfold', 'stratifiedkfold'),
               ('GroupKfold by Acquisition', 'groupkfold_acquisition'),
-              ('GroupKfold by Settings', 'groupkfold_settings'),
+              #('GroupKfold by Settings', 'groupkfold_settings'),
               #('GroupKfold by Bearings', 'groupkfold_bearings'),
               #('GroupKfold by Severity', 'groupkfold_severity'),
              ]
 
     n_experiments = 10
     #dataset = ('Paderborn', Paderborn(bearing_names_file="paderborn_bearings.csv", n_aquisitions=20))
-    #dataset = ('Paderborn', Paderborn(bearing_names_file="paderborn_bearings_debug.csv", n_aquisitions=1))
-    #dataset = ('MFPT', MFPT())
-    dataset = ('Ottawa', Ottawa())
+    #dataset = ('Paderborn', Paderborn(bearing_names_file="paderborn_bearings_min.csv", n_aquisitions=1))
+    dataset = ('MFPT', MFPT())
+    #dataset = ('Ottawa', Ottawa())
     #dataset = ('Ottawa', Ottawa(downsample=True))
     #dataset = ('CWRU', CWRU(bearing_names_file="cwru_bearings.csv"))
     #dataset = ('CWRU', CWRU(bearing_names_file="cwru_bearings_debug.csv"))
