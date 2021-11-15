@@ -13,7 +13,7 @@ def main():
     dname = os.path.dirname(abspath)
     os.chdir(dname)
 
-    metrics.scores("2021.10.07_17.04.38.csv")
+    metrics.scores("2021.11.15_09.34.08.csv")
 
 
 if __name__ == "__main__":

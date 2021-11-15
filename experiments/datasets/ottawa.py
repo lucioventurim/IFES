@@ -174,7 +174,7 @@ class Ottawa():
         """
 
         for key in self.files:
-
+            print(key)
             matlab_file = scipy.io.loadmat(self.files[key])
 
             vibration_data = np.array([elem for singleList in matlab_file['Channel_1'] for elem in singleList])
