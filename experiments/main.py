@@ -85,7 +85,7 @@ def main():
 
     n_experiments = 1
     #dataset = ('Paderborn', Paderborn(bearing_names_file="paderborn_bearings.csv", n_aquisitions=20))
-    dataset = ('Paderborn', Paderborn(bearing_names_file="paderborn_bearings_debug.csv", n_aquisitions=1))
+    dataset = ('Paderborn', Paderborn(bearing_names_file="paderborn_bearings_debug.csv", n_aquisitions=4))
     #dataset = ('MFPT', MFPT())
     #dataset = ('Ottawa', Ottawa())
     #dataset = ('Ottawa', Ottawa(downsample=True))
