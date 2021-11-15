@@ -6,7 +6,7 @@ import urllib.request
 import scipy.io
 import numpy as np
 import os
-from sklearn.model_selection import KFold, GroupKFold, StratifiedShuffleSplit
+from sklearn.model_selection import KFold, GroupKFold, StratifiedShuffleSplit, GroupShuffleSplit
 import csv
 import urllib
 import rarfile
@@ -198,9 +198,11 @@ class Paderborn():
         Extracts the acquisitions of each file in the dictionary files_names.
         """
         cwd = os.getcwd()
-
+        progress = 0
         for key in self.files:
-            print("Loading vibration data:", key)
+            if (progress // (self.n_acquisitions*4)) == 0:
+                print("Loading vibration data:", key)
+                progress = progress + 1
             matlab_file = scipy.io.loadmat(os.path.join(cwd, self.files[key]))
             if len(self.files[key]) > 41:
                 vibration_data = matlab_file[self.files[key][19:38]]['Y'][0][0][0][6][2]
@@ -208,8 +210,8 @@ class Paderborn():
                 vibration_data = matlab_file[self.files[key][19:37]]['Y'][0][0][0][6][2]
 
             acquisition = vibration_data[0]
-            self.n_samples_acquisition = len(acquisition)//self.sample_size
-            for i in range(len(acquisition)//self.sample_size):
+            #self.n_samples_acquisition = len(acquisition)//self.sample_size
+            for i in range(self.n_samples_acquisition):
                 sample = acquisition[(i * self.sample_size):((i + 1) * self.sample_size)]
                 self.signal_data = np.append(self.signal_data, np.array([sample]), axis=0)
                 self.labels = np.append(self.labels, key[0])
@@ -246,7 +248,7 @@ class Paderborn():
         for i in self.keys:
             groups = np.append(groups, int(i[-1]) % self.n_folds)
 
-        kf = GroupKFold(n_splits=self.n_folds)
+        kf = GroupShuffleSplit(n_splits=self.n_folds)
 
         for train, test in kf.split(self.signal_data, self.labels, groups):
             # print("Train Index: ", train, "Test Index: ", test)
@@ -258,12 +260,16 @@ class Paderborn():
             self.load_acquisitions()
 
         groups = []
-        for i in range(len(self.bearing_names)):
-            for k in range(4): # Number of Settings - 4
-                for j in range(self.n_samples_acquisition*self.n_acquisitions):
-                    groups = np.append(groups, k)
 
-        kf = GroupKFold(n_splits=self.n_folds)
+        for i in self.keys:
+            groups = np.append(groups, int(i[-3]) % self.n_folds)
+
+        #for i in range(len(self.bearing_names)):
+        #    for k in range(4): # Number of Settings - 4
+        #        for j in range(self.n_samples_acquisition*self.n_acquisitions):
+        #            groups = np.append(groups, k)
+
+        kf = GroupShuffleSplit(n_splits=self.n_folds)
 
         for train, test in kf.split(self.signal_data, self.labels, groups):
             #print("Train Index: ", train, "Test Index: ", test)
@@ -301,7 +307,7 @@ class Paderborn():
                 n_inner = n_inner + 1
                 n_keys_bearings = 1
 
-        kf = GroupKFold(n_splits=self.n_folds)
+        kf = GroupShuffleSplit(n_splits=self.n_folds)
 
         for train, test in kf.split(self.signal_data, self.labels, groups):
             # print("Train Index: ", train, "Test Index: ", test)
