@@ -200,6 +200,7 @@ class Paderborn():
         cwd = os.getcwd()
 
         for key in self.files:
+            print("Loading vibration data:", key)
             matlab_file = scipy.io.loadmat(os.path.join(cwd, self.files[key]))
             if len(self.files[key]) > 41:
                 vibration_data = matlab_file[self.files[key][19:38]]['Y'][0][0][0][6][2]
