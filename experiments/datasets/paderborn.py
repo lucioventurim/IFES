@@ -198,11 +198,8 @@ class Paderborn():
         Extracts the acquisitions of each file in the dictionary files_names.
         """
         cwd = os.getcwd()
-        progress = 0
         for key in self.files:
-            if (progress // (self.n_acquisitions*4)) == 0:
-                print("Loading vibration data:", key)
-                progress = progress + 1
+            print("Loading vibration data:", key)
             matlab_file = scipy.io.loadmat(os.path.join(cwd, self.files[key]))
             if len(self.files[key]) > 41:
                 vibration_data = matlab_file[self.files[key][19:38]]['Y'][0][0][0][6][2]
