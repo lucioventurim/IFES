@@ -4,7 +4,12 @@ from tensorflow.keras import layers
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.utils import to_categorical
 from sklearn.base import BaseEstimator, ClassifierMixin
+import tensorflow as tf
 import numpy as np
+
+
+physical_devices = tf.config.list_physical_devices('GPU')
+tf.config.experimental.set_memory_growth(physical_devices[0], True)
 
 
 def sig_image(data):
