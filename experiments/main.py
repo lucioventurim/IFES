@@ -66,13 +66,13 @@ def main():
     dname = os.path.dirname(abspath)
     os.chdir(dname)
 
-    clfs = [('K-Nearest Neighbors', auto_knn.instantiate_auto_knn()),
-            ('Random Forest', auto_random_forest.instantiate_auto_random_forest()),
+    clfs = [#('K-Nearest Neighbors', auto_knn.instantiate_auto_knn()),
+            #('Random Forest', auto_random_forest.instantiate_auto_random_forest()),
             #('Logistic Regression', auto_lr.instantiate_auto_lr()),
-            ('SVM', auto_svm.instantiate_auto_svm()),
-            ('MLP', auto_mlp.instantiate_auto_mlp()),
+            #('SVM', auto_svm.instantiate_auto_svm()),
+            #('MLP', auto_mlp.instantiate_auto_mlp()),
             #('CNN', auto_cnn.instantiate_auto_cnn()),
-            #('FaultNet', auto_faultnet.instantiate_auto_cnn()),
+            ('FaultNet', auto_faultnet.instantiate_auto_cnn()),
             ]
 
     splits = [#('Kfold', 'kfold'),
