@@ -24,7 +24,12 @@ def scores(file):
             print("## Splitting Strategy: ", fold[1], "##")
             print("# Classification Model: ", fold[2], "#")
             print("Accuracy: ", accuracy, "Mean: ", mean(accuracy), "Std: ", stdev(accuracy))
+            #print("Accuracy Mean / Std / F1 Macro Mean / Std:")
+            #print(str(mean(accuracy)).replace('.',','))
+            #print(str(stdev(accuracy)).replace('.',','))
             print("F1 Macro: ", f1_macro, "Mean: ", mean(f1_macro), "Std: ", stdev(f1_macro))
+            #print(str(mean(f1_macro)).replace('.',','))
+            #print(str(stdev(f1_macro)).replace('.',','))
             print()
             accuracy = []
             f1_macro = []
