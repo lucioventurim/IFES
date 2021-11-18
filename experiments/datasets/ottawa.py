@@ -4,6 +4,7 @@ Class definition of Ottawa Bearing dataset download and acquisitions extraction.
 
 import urllib.request
 import scipy.io
+import scipy.signal
 import numpy as np
 import os
 from sklearn.model_selection import KFold, GroupKFold, StratifiedShuffleSplit
@@ -88,9 +89,10 @@ class Ottawa():
         self.url="https://md-datasets-cache-zipfiles-prod.s3.eu-west-1.amazonaws.com/v43hmbwxpm-1.zip"
 
         self.n_folds = 4
+        self.dsample = downsample
 
-        if downsample:
-            self.sample_size = 16384
+        if self.dsample:
+            self.sample_size = 8192
         else:
             self.sample_size = 32768
 
@@ -179,6 +181,10 @@ class Ottawa():
 
             vibration_data = np.array([elem for singleList in matlab_file['Channel_1'] for elem in singleList])
             #vibration_data = np.array([elem for singleList in matlab_file['Channel_1'][0:15000] for elem in singleList])
+            print(len(vibration_data))
+            if self.dsample:
+                vibration_data = scipy.signal.decimate(vibration_data, 4)
+                print(len(vibration_data))
 
             for i in range(len(vibration_data)//self.sample_size):
                 sample = vibration_data[(i * self.sample_size):((i + 1) * self.sample_size)]
