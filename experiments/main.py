@@ -66,11 +66,11 @@ def main():
     dname = os.path.dirname(abspath)
     os.chdir(dname)
 
-    clfs = [#('K-Nearest Neighbors', auto_knn.instantiate_auto_knn()),
-            #('Random Forest', auto_random_forest.instantiate_auto_random_forest()),
+    clfs = [('K-Nearest Neighbors', auto_knn.instantiate_auto_knn()),
+            ('Random Forest', auto_random_forest.instantiate_auto_random_forest()),
             #('Logistic Regression', auto_lr.instantiate_auto_lr()),
-            #('SVM', auto_svm.instantiate_auto_svm()),
-            #('MLP', auto_mlp.instantiate_auto_mlp()),
+            ('SVM', auto_svm.instantiate_auto_svm()),
+            ('MLP', auto_mlp.instantiate_auto_mlp()),
             #('CNN', auto_cnn.instantiate_auto_cnn()),
             ('FaultNet', auto_faultnet.instantiate_auto_cnn()),
             ]
@@ -78,18 +78,18 @@ def main():
     splits = [#('Kfold', 'kfold'),
               #('StratifiedKfold', 'stratifiedkfold'),
               #('GroupKfold by Acquisition', 'groupkfold_acquisition'),
-              ('GroupKfold by Settings', 'groupkfold_settings'),
-              ('GroupKfold by Bearings', 'groupkfold_bearings'),
-              #('GroupKfold by Severity', 'groupkfold_severity'),
+              #('GroupKfold by Settings', 'groupkfold_settings'),
+              #('GroupKfold by Bearings', 'groupkfold_bearings'),
+              ('GroupKfold by Severity', 'groupkfold_severity'),
              ]
 
     n_experiments = 10
-    dataset = ('Paderborn', Paderborn(bearing_names_file="paderborn_bearings.csv", n_aquisitions=20))
+    #dataset = ('Paderborn', Paderborn(bearing_names_file="paderborn_bearings.csv", n_aquisitions=20))
     #dataset = ('Paderborn', Paderborn(bearing_names_file="paderborn_bearings_min.csv", n_aquisitions=4))
     #dataset = ('MFPT', MFPT())
     #dataset = ('Ottawa', Ottawa())
     #dataset = ('Ottawa', Ottawa(downsample=True))
-    #dataset = ('CWRU', CWRU(bearing_names_file="cwru_bearings.csv"))
+    dataset = ('CWRU', CWRU(bearing_names_file="cwru_bearings.csv"))
     #dataset = ('CWRU', CWRU(bearing_names_file="cwru_bearings_debug.csv"))
     experimenter(dataset, clfs, splits, n_experiments)
 
