@@ -3588,6 +3588,25 @@ GroupKfold by Acquisition - FaultNet
 GroupKfold by Settings - FaultNet
 1: 1265.6661178900395 s
 2: Paderborn
+Tentativa anterior
+StratifiedKfold - FaultNet
+1: 1601.8384345160448 s
+2: 1619.3154343439965 s
+3: 1584.031149154005 s
+4: 1619.681386864977 s
+GroupKfold by Acquisition - FaultNet
+1: 1477.6782333470182 s
+2: 1429.8007753880229 s
+3: 1353.5965721890097 s
+4: 1593.0128711410216 s
+StratifiedKfold - FaultNet
+1: 1576.8373718159855 s
+2: 1524.7405735760112 s
+3: 1511.2203611480072 s
+4: 1518.230047903955 s
+GroupKfold by Acquisition - FaultNet
+1: 
+Tentativa atual
 StratifiedKfold - K-Nearest Neighbors
 1: 97.10245387512259 s
 2: 93.6456844699569 s
