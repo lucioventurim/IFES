@@ -242,7 +242,10 @@ class CWRU():
         #    groups = np.append(groups, severity)
 
         for i in self.keys:
-            load_severity = str(i[-1]) + i[2:5]
+            if i[0] == "N":
+                load_severity = str(i[-1])
+            else:
+                load_severity = i[2:5]
             groups = np.append(groups, load_severity)
 
         #print(self.keys)
