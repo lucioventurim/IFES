@@ -4,7 +4,7 @@ from classification_models import auto_faultnet
 from classification_models import auto_cnn
 from utils import persist_results, metrics
 import os
-from numba import cuda
+from tensorflow import keras
 
 import numpy as np
 
@@ -60,8 +60,8 @@ def experimenter(dataset, clfs, splits, n_experiments):
                     fold_number = fold_number + 1
         saved_results = persist_results.save_results(results)
         metrics.scores(saved_results)
-        device = cuda.get_current_device()
-        device.reset()
+        keras.backend.clear_session()
+
 
 def main():
     abspath = os.path.abspath(__file__)
