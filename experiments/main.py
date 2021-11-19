@@ -4,6 +4,7 @@ from classification_models import auto_faultnet
 from classification_models import auto_cnn
 from utils import persist_results, metrics
 import os
+from numba import cuda
 
 import numpy as np
 
@@ -59,7 +60,8 @@ def experimenter(dataset, clfs, splits, n_experiments):
                     fold_number = fold_number + 1
         saved_results = persist_results.save_results(results)
         metrics.scores(saved_results)
-
+        device = cuda.get_current_device()
+        device.reset()
 
 def main():
     abspath = os.path.abspath(__file__)
@@ -83,9 +85,9 @@ def main():
               #('GroupKfold by Severity', 'groupkfold_severity'),
              ]
 
-    n_experiments = 9
-    dataset = ('Paderborn', Paderborn(bearing_names_file="paderborn_bearings.csv", n_aquisitions=20))
-    #dataset = ('Paderborn', Paderborn(bearing_names_file="paderborn_bearings_min.csv", n_aquisitions=4))
+    n_experiments = 3
+    #dataset = ('Paderborn', Paderborn(bearing_names_file="paderborn_bearings.csv", n_aquisitions=20))
+    dataset = ('Paderborn', Paderborn(bearing_names_file="paderborn_bearings_min.csv", n_aquisitions=4))
     #dataset = ('MFPT', MFPT())
     #dataset = ('Ottawa', Ottawa())
     #dataset = ('Ottawa', Ottawa(downsample=True))
