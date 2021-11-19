@@ -7,6 +7,7 @@ import os
 from tensorflow import keras
 
 #from numba import cuda
+from multiprocessing import Process, Queue
 
 import numpy as np
 
@@ -34,7 +35,7 @@ def timer(func):
 
 @timer
 def run_train_test(classifier, X_train, y_train, X_test):
-    keras.backend.clear_session()
+    #keras.backend.clear_session()
     classifier.fit(X_train, y_train)
     y_pred = classifier.predict(X_test)
     y_proba = classifier.predict_proba(X_test)
@@ -60,7 +61,16 @@ def experimenter(dataset, clfs, splits, n_experiments):
                 for X_train, y_train, X_test, y_test in getattr(dataset[1], folds[1])():
                     write_in_file("execution_time", f"{fold_number}: ")
                     print("fold_number: ", fold_number)
-                    y_pred, y_proba = run_train_test(clf[1], X_train, y_train, X_test)
+
+                    Q = Queue()
+                    p = Process(target=run_train_test, args=(clf[1], X_train, y_train, X_test))
+                    p.start()
+                    res = Q.get()
+                    y_pred = res[0]
+                    y_proba = res[1]
+                    p.join()
+                    #y_pred, y_proba = run_train_test(clf[1], X_train, y_train, X_test)
+
                     results.append([dataset[0], folds[0], clf[0], fold_number, y_test, y_pred, y_proba])
                     fold_number = fold_number + 1
                 #keras.backend.clear_session()
@@ -90,9 +100,9 @@ def main():
               #('GroupKfold by Severity', 'groupkfold_severity'),
              ]
 
-    n_experiments = 9
-    dataset = ('Paderborn', Paderborn(bearing_names_file="paderborn_bearings.csv", n_aquisitions=20))
-    #dataset = ('Paderborn', Paderborn(bearing_names_file="paderborn_bearings_min.csv", n_aquisitions=4))
+    n_experiments = 2
+    #dataset = ('Paderborn', Paderborn(bearing_names_file="paderborn_bearings.csv", n_aquisitions=20))
+    dataset = ('Paderborn', Paderborn(bearing_names_file="paderborn_bearings_min.csv", n_aquisitions=4))
     #dataset = ('MFPT', MFPT())
     #dataset = ('Ottawa', Ottawa())
     #dataset = ('Ottawa', Ottawa(downsample=True))
