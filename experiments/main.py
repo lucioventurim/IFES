@@ -8,6 +8,7 @@ from tensorflow import keras
 
 #from numba import cuda
 from multiprocessing import Process, Queue
+Q = Queue()
 
 import numpy as np
 
@@ -39,7 +40,9 @@ def run_train_test(classifier, X_train, y_train, X_test):
     print("antes de treinar")
     classifier.fit(X_train, y_train)
     y_pred = classifier.predict(X_test)
+    Q.put(y_pred)
     y_proba = classifier.predict_proba(X_test)
+    Q.put(y_proba)
     print("treinou e rodou experimento")
     #cuda.select_device(0)
     #cuda.close()
@@ -64,15 +67,14 @@ def experimenter(dataset, clfs, splits, n_experiments):
                     write_in_file("execution_time", f"{fold_number}: ")
                     print("fold_number: ", fold_number)
 
-                    Q = Queue()
                     p = Process(target=run_train_test, args=(clf[1], X_train, y_train, X_test))
                     p.start()
                     print("antes do Queue")
-                    print(Q.get())
-                    res = Q.get()
-                    print(res)
-                    y_pred = res[0]
-                    y_proba = res[1]
+
+                    y_pred = Q.get()
+                    print(y_pred)
+                    y_proba = Q.get()
+                    print(y_proba)
                     p.join()
                     #y_pred, y_proba = run_train_test(clf[1], X_train, y_train, X_test)
 
