@@ -36,9 +36,11 @@ def timer(func):
 @timer
 def run_train_test(classifier, X_train, y_train, X_test):
     #keras.backend.clear_session()
+    print("antes de treinar")
     classifier.fit(X_train, y_train)
     y_pred = classifier.predict(X_test)
     y_proba = classifier.predict_proba(X_test)
+    print("treinou e rodou experimento")
     #cuda.select_device(0)
     #cuda.close()
     return y_pred, y_proba
