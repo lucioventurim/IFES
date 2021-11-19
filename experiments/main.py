@@ -6,7 +6,7 @@ from utils import persist_results, metrics
 import os
 from tensorflow import keras
 
-from numba import cuda
+#from numba import cuda
 
 import numpy as np
 
@@ -34,12 +34,12 @@ def timer(func):
 
 @timer
 def run_train_test(classifier, X_train, y_train, X_test):
-    #keras.backend.clear_session()
+    keras.backend.clear_session()
     classifier.fit(X_train, y_train)
     y_pred = classifier.predict(X_test)
     y_proba = classifier.predict_proba(X_test)
-    cuda.select_device(0)
-    cuda.close()
+    #cuda.select_device(0)
+    #cuda.close()
     return y_pred, y_proba
 
 @timer
@@ -90,9 +90,9 @@ def main():
               #('GroupKfold by Severity', 'groupkfold_severity'),
              ]
 
-    n_experiments = 2
-    #dataset = ('Paderborn', Paderborn(bearing_names_file="paderborn_bearings.csv", n_aquisitions=20))
-    dataset = ('Paderborn', Paderborn(bearing_names_file="paderborn_bearings_min.csv", n_aquisitions=4))
+    n_experiments = 9
+    dataset = ('Paderborn', Paderborn(bearing_names_file="paderborn_bearings.csv", n_aquisitions=20))
+    #dataset = ('Paderborn', Paderborn(bearing_names_file="paderborn_bearings_min.csv", n_aquisitions=4))
     #dataset = ('MFPT', MFPT())
     #dataset = ('Ottawa', Ottawa())
     #dataset = ('Ottawa', Ottawa(downsample=True))
