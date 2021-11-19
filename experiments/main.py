@@ -72,9 +72,9 @@ def experimenter(dataset, clfs, splits, n_experiments):
                     print("antes do Queue")
 
                     y_pred = Q.get()
-                    print(y_pred)
+                    print("y_pred", y_pred)
                     y_proba = Q.get()
-                    print(y_proba)
+                    print("y_proba", y_proba)
                     p.join()
                     #y_pred, y_proba = run_train_test(clf[1], X_train, y_train, X_test)
 
