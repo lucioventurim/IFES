@@ -100,14 +100,14 @@ def main():
             ]
 
     splits = [#('Kfold', 'kfold'),
-              ('StratifiedKfold', 'stratifiedkfold'),
-              ('GroupKfold by Acquisition', 'groupkfold_acquisition'),
-              #('GroupKfold by Settings', 'groupkfold_settings'),
-              #('GroupKfold by Bearings', 'groupkfold_bearings'),
+              #('StratifiedKfold', 'stratifiedkfold'),
+              #('GroupKfold by Acquisition', 'groupkfold_acquisition'),
+              ('GroupKfold by Settings', 'groupkfold_settings'),
+              ('GroupKfold by Bearings', 'groupkfold_bearings'),
               #('GroupKfold by Severity', 'groupkfold_severity'),
              ]
 
-    n_experiments = 9
+    n_experiments = 10
     dataset = ('Paderborn', Paderborn(bearing_names_file="paderborn_bearings.csv", n_aquisitions=20))
     #dataset = ('Paderborn', Paderborn(bearing_names_file="paderborn_bearings_min.csv", n_aquisitions=4))
     #dataset = ('MFPT', MFPT())
