@@ -101,8 +101,8 @@ def main():
 
     splits = [#('Kfold', 'kfold'),
               ('StratifiedKfold', 'stratifiedkfold'),
-              #('GroupKfold by Acquisition', 'groupkfold_acquisition'),
-              #('GroupKfold by Settings', 'groupkfold_settings'),
+              ('GroupKfold by Acquisition', 'groupkfold_acquisition'),
+              ('GroupKfold by Settings', 'groupkfold_settings'),
               #('GroupKfold by Bearings', 'groupkfold_bearings'),
               #('GroupKfold by Severity', 'groupkfold_severity'),
              ]
