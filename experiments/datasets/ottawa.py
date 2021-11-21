@@ -93,7 +93,8 @@ class Ottawa():
 
         if self.dsample:
             #self.sample_size = 8192
-            self.sample_size = 4096
+            #self.sample_size = 4096
+            self.sample_size = 2048
         else:
             self.sample_size = 32768
 
@@ -184,7 +185,7 @@ class Ottawa():
             #vibration_data = np.array([elem for singleList in matlab_file['Channel_1'][0:15000] for elem in singleList])
             print(len(vibration_data))
             if self.dsample:
-                vibration_data = scipy.signal.decimate(vibration_data, 8)
+                vibration_data = scipy.signal.decimate(vibration_data, 16)
                 print(len(vibration_data))
 
             for i in range(len(vibration_data)//self.sample_size):
