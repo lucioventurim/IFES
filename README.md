@@ -15,6 +15,7 @@ The following data sets are covered in this framework:
 # Requirements
 
 This framework was developed in Python 3.8, using PyCharm IDE.
+
 In order to run this framework, the following packages are required, which are listed in the requirements.txt file:
 
 - patool==1.12
