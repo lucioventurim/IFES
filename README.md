@@ -27,7 +27,7 @@ In order to run this framework, the following packages are required, which are l
 - numpy~=1.19.2
 - PyWavelets
 
-Also, for the PADERBORN data set, it is required a compatible unrar software to extract the data set files.
+Also, for the PADERBORN data set, it is required a compatible unrar software installed to extract the data set files.
 
 # Instructions
 
