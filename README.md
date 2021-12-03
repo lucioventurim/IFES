@@ -17,14 +17,14 @@ The following data sets are covered in this framework:
 This framework was developed in Python 3.8, using PyCharm IDE.
 In order to run this framework, the following packages are required, which are listed in the requirements.txt file:
 
-patool==1.12
-pip-chill==1.0.1
-pyunpack==0.2.2
-rarfile==4.0
-scikit-learn
-tensorflow
-numpy~=1.19.2
-PyWavelets
+- patool==1.12
+- pip-chill==1.0.1
+- pyunpack==0.2.2
+- rarfile==4.0
+- scikit-learn
+- tensorflow
+- numpy~=1.19.2
+- PyWavelets
 
 # Instructions
 
