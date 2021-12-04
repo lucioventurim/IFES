@@ -33,9 +33,12 @@ Also, for the PADERBORN data set, it is required a compatible unrar software ins
 
 Here are the steps to perform experiments using this framework:
 
-1 - Define if the esperiments will use GPU or not, changing the use_gpu flag.
-2 - Choose which classification models will be evaluated on the clfs list on main().
-3 - Choose the splitting strategy for the experiments on the splits list on main(). Here each data set has different possible splitting strategies.
-4 - Define the number of experiments to be performed on main().
-5 - Define which data set will be used, on the dataset variable on main().
+- Define if the esperiments will use GPU or not, changing the use_gpu flag.
+- Choose which classification models will be evaluated on the clfs list on main().
+- Choose the splitting strategy for the experiments on the splits list on main(). Here each data set has different possible splitting strategies.
+- Define the number of experiments to be performed on main().
+- Define which data set will be used, on the dataset variable on main().
 
+After the experiments execution, the csv files will be available with the results.
+
+In order to view the results again in the future, there is the main_read file. On this file, change the csv file name on metrics.scores on main() to show the results.
