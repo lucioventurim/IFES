@@ -194,19 +194,6 @@ class Ottawa():
                 self.labels = np.append(self.labels, key[0])
                 self.keys = np.append(self.keys, key)
 
-        #groups = []
-        #for i in self.keys:
-        #    groups = np.append(groups, i[2])
-
-        #print(groups)
-
-        #kf = GroupKFold(n_splits=self.n_folds)
-
-        #for train, test in kf.split(self.keys, self.keys, groups):
-            # print("Train Index: ", train, "Test Index: ", test)
-        #    print(self.keys[train], self.keys[test])
-
-
     def kfold(self):
 
         if len(self.signal_data) == 0:

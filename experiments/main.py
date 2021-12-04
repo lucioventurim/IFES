@@ -1,15 +1,15 @@
 
+# Change variable use_gpu to 1 when using GPU
+use_gpu = 0
+from multiprocessing import Process, Queue
+Q = Queue()
+
 from classification_models import auto_knn, auto_random_forest, auto_lr, auto_svm, auto_mlp
 from classification_models import auto_faultnet
 from classification_models import auto_cnn
 from utils import persist_results, metrics
 import os
 from tensorflow import keras
-
-#from numba import cuda
-from multiprocessing import Process, Queue
-Q = Queue()
-
 import numpy as np
 
 from datasets.mfpt import MFPT
@@ -36,16 +36,16 @@ def timer(func):
 
 @timer
 def run_train_test(classifier, X_train, y_train, X_test):
-    #keras.backend.clear_session()
-    #print("antes de treinar")
+
     classifier.fit(X_train, y_train)
     y_pred = classifier.predict(X_test)
-    Q.put(y_pred)
+    if use_gpu == 1:
+        Q.put(y_pred)
+
     y_proba = classifier.predict_proba(X_test)
-    Q.put(y_proba)
-    #print("treinou e rodou experimento")
-    #cuda.select_device(0)
-    #cuda.close()
+    if use_gpu == 1:
+        Q.put(y_proba)
+
     return y_pred, y_proba
 
 @timer
@@ -67,20 +67,21 @@ def experimenter(dataset, clfs, splits, n_experiments):
                     write_in_file("execution_time", f"{fold_number}: ")
                     print("fold_number: ", fold_number)
 
-                    p = Process(target=run_train_test, args=(clf[1], X_train, y_train, X_test))
-                    p.start()
-                    #print("antes do Queue")
+                    if use_gpu == 1:
+                        p = Process(target=run_train_test, args=(clf[1], X_train, y_train, X_test))
+                        p.start()
 
-                    y_pred = Q.get()
-                    #print("y_pred", y_pred)
-                    y_proba = Q.get()
-                    #print("y_proba", y_proba)
-                    p.join()
-                    #y_pred, y_proba = run_train_test(clf[1], X_train, y_train, X_test)
+                        y_pred = Q.get()
+
+                        y_proba = Q.get()
+
+                        p.join()
+                    else:
+                        y_pred, y_proba = run_train_test(clf[1], X_train, y_train, X_test)
 
                     results.append([dataset[0], folds[0], clf[0], fold_number, y_test, y_pred, y_proba])
                     fold_number = fold_number + 1
-                #keras.backend.clear_session()
+
         saved_results = persist_results.save_results(results)
         metrics.scores(saved_results)
 
@@ -90,31 +91,41 @@ def main():
     dname = os.path.dirname(abspath)
     os.chdir(dname)
 
+    # Define experiments classifiers
+
     clfs = [('K-Nearest Neighbors', auto_knn.instantiate_auto_knn()),
-            ('Random Forest', auto_random_forest.instantiate_auto_random_forest()),
+            #('Random Forest', auto_random_forest.instantiate_auto_random_forest()),
             #('Logistic Regression', auto_lr.instantiate_auto_lr()),
-            ('SVM', auto_svm.instantiate_auto_svm()),
-            ('MLP', auto_mlp.instantiate_auto_mlp()),
+            #('SVM', auto_svm.instantiate_auto_svm()),
+            #('MLP', auto_mlp.instantiate_auto_mlp()),
             #('CNN', auto_cnn.instantiate_auto_cnn()),
             #('FaultNet', auto_faultnet.instantiate_auto_cnn()),
             ]
 
+    # Define experiments splitting strategy
+
     splits = [#('Kfold', 'kfold'),
               ('StratifiedKfold', 'stratifiedkfold'),
               ('GroupKfold by Acquisition', 'groupkfold_acquisition'),
-              ('GroupKfold by Settings', 'groupkfold_settings'),
+              #('GroupKfold by Settings', 'groupkfold_settings'),
               #('GroupKfold by Bearings', 'groupkfold_bearings'),
               #('GroupKfold by Severity', 'groupkfold_severity'),
              ]
 
-    n_experiments = 3
+    # Define number of experiments
+
+    n_experiments = 2
+
+    # Define experiments data set
+
     #dataset = ('Paderborn', Paderborn(bearing_names_file="paderborn_bearings.csv", n_aquisitions=20))
     #dataset = ('Paderborn', Paderborn(bearing_names_file="paderborn_bearings_min.csv", n_aquisitions=4))
-    #dataset = ('MFPT', MFPT())
+    dataset = ('MFPT', MFPT())
     #dataset = ('Ottawa', Ottawa())
-    dataset = ('Ottawa', Ottawa(downsample=True))
+    #dataset = ('Ottawa', Ottawa(downsample=True))
     #dataset = ('CWRU', CWRU(bearing_names_file="cwru_bearings.csv"))
     #dataset = ('CWRU', CWRU(bearing_names_file="cwru_bearings_debug.csv"))
+
     experimenter(dataset, clfs, splits, n_experiments)
 
 

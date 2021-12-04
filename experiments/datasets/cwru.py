@@ -213,9 +213,6 @@ class CWRU():
             self.load_acquisitions()
 
         groups = []
-        #for i in self.keys:
-        #    severity = i[2:5]
-        #    groups = np.append(groups, severity)
 
         for i in self.keys:
             load = i[-1]
@@ -224,7 +221,6 @@ class CWRU():
         #print(self.keys)
         #print(groups)
 
-        #kf = GroupKFold(n_splits=self.n_folds)
         kf = GroupShuffleSplit(n_splits=self.n_folds)
 
         for train, test in kf.split(self.signal_data, self.labels, groups):
@@ -237,9 +233,6 @@ class CWRU():
             self.load_acquisitions()
 
         groups = []
-        #for i in self.keys:
-        #    severity = i[2:5]
-        #    groups = np.append(groups, severity)
 
         for i in self.keys:
             if i[0] == "N":

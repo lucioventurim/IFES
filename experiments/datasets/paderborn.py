@@ -258,9 +258,6 @@ class Paderborn():
 
         groups = []
 
-        #for i in self.keys:
-        #    groups = np.append(groups, int(i[-3]) % self.n_folds)
-
         for i in range(len(self.bearing_names)):
             for k in range(4): # Number of Settings - 4
                 for j in range(self.n_samples_acquisition*self.n_acquisitions):

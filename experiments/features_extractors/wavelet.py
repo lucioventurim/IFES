@@ -7,7 +7,7 @@ class WaveletPackage(TransformerMixin):
   '''
   Extracts Wavelet Package features.
   The features are calculated by the energy of the recomposed signal
-  of the leaf nodes coeficients.
+  of the leaf nodes coefficients.
   '''
   def fit(self, X, y=None):
     return self

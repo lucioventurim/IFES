@@ -8,15 +8,7 @@ import tensorflow as tf
 import numpy as np
 
 
-#physical_devices = tf.config.list_physical_devices('GPU')
-#tf.config.experimental.set_memory_growth(physical_devices[0], True)
-
-
 def sig_image(data):
-
-
-    #print(data)
-    #print(len(data[1]))
 
     sample_size = len(data[0])
     xx = 0
@@ -36,9 +28,6 @@ def sig_image(data):
                     y = y * 2
             x = x * 2
             y = 2
-
-    #print(xx, yy)
-
 
     X=np.zeros((data.shape[0],xx,yy))
     for i in range(data.shape[0]):

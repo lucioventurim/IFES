@@ -210,10 +210,8 @@ class MFPT():
 
         groups = []
         for i in self.keys:
-            #groups = np.append(groups, int(i[-1]) % self.n_folds)
             groups = np.append(groups, i)
 
-        #kf = GroupKFold(n_splits=self.n_folds)
         kf = GroupShuffleSplit(n_splits=self.n_folds)
 
         for train, test in kf.split(self.signal_data, self.labels, groups):
