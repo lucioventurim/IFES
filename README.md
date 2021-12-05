@@ -47,7 +47,8 @@ In order to view the results again in the future, there is the main_read file. O
 
 The main framework folders and files are listed below:
 
-- classification_models: Folder with the classification models available for evaluation. Models available: CNN, FaultNet, KNN, LR, MLP, Random Forest, SVM.
+- classification_models: Folder with the classification models available for evaluation.
+ - Models available: CNN, FaultNet, KNN, LR, MLP, Random Forest, SVM.
 - datasets: Folder with the data sets available, including CWRU, MFPT, PADERBORN and OTTAWA.
 - features_extractors: Folder with the statistical and wavelet packet feature extractors.
 - utils: Folder with metrics and results recording tools in csv files.
