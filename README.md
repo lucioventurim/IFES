@@ -48,8 +48,27 @@ In order to view the results again in the future, there is the main_read file. O
 The main framework folders and files are listed below:
 
 - classification_models: Folder with the classification models available for evaluation.
-  - Models available: CNN, FaultNet, KNN, LR, MLP, Random Forest, SVM.
-- datasets: Folder with the data sets available, including CWRU, MFPT, PADERBORN and OTTAWA.
-
-- features_extractors: Folder with the statistical and wavelet packet feature extractors.
-- utils: Folder with metrics and results recording tools in csv files.
+  - auto_cnn.py: CNN model.
+  - auto_faultnet.py: FaultNet Model.
+  - auto_knn.py: K-nearest neighbors model.
+  - auto_lr.py: Linear regressor model.
+  - auto_mlp.py: MLP model.
+  - auto_random_forest.py: Random forest model.
+  - auto_svm.py Support vector machine model.
+- datasets: Folder with the data sets available.
+  - cwru.py: CWRU data set class definition, with an input of a csv file naming the bearings files names to be used.
+  - mfpt.py: MFPT data set class definition.
+  - ottawa.py: OTTAWA data set class definition, with an input of downsampling the signal.
+  - paderborn.py: PADERBORN data set class definition, with inputs of a csv file naming the bearings and the number of acquisitions to be used.
+  - CWRU CSV files: files with the bearings file name and details, with 2 already available (all data set and debug file).
+  - PADERBORN CSV files: files with the bearings to be used, with 3 already available (all data set, minimum data for tests and debug file).
+- features_extractors: Folder with feature extraction files.
+  - heterogeneous.py: Class for statistical and wavelet package features extraction.
+  - statisticalfrequency.py: Class with statistical frequency features extraction.
+  - statisticaltime.py: Class with statistical time features extraction.
+  - wavelet.py: Class with wavelet package features extractors.
+- utils: Folder with useful tools.
+  - metrics.py: File with function for accuracy and F1 score calculation.
+  - persist_results.py: File with functions for saving and loading experiment results on CSV files.
+- main.py: File where the experiments settings are defined.
+- main_read.py: File to read the experiments results from CSV files.
