@@ -16,7 +16,7 @@ The following data sets are covered in this framework:
 
 This framework was developed in Python 3.8, using PyCharm IDE.
 
-In order to run this framework, the following packages are required, which are listed in the requirements.txt file:
+In order to run this framework, the following packages are required, which are listed in the **requirements.txt** file:
 
 - patool==1.12
 - pip-chill==1.0.1
@@ -33,15 +33,15 @@ Also, for the PADERBORN data set, it is required a compatible unrar software ins
 
 Here are the steps to perform experiments using this framework:
 
-- Define if the esperiments will use GPU or not, changing the use_gpu flag.
-- Choose which classification models will be evaluated on the clfs list on main().
-- Choose the splitting strategy for the experiments on the splits list on main(). Here each data set has different possible splitting strategies.
-- Define the number of experiments to be performed on main().
-- Define which data set will be used, on the dataset variable on main().
+- Define if the esperiments will use GPU or not, changing the **use_gpu** flag.
+- Choose which classification models will be evaluated on the **clfs** list on **main()**.
+- Choose the splitting strategy for the experiments on the splits list on **main()**. Here each data set has different possible splitting strategies.
+- Define the number of experiments to be performed on **main()**.
+- Define which data set will be used, on the dataset variable on **main()**.
 
 After the experiments execution, the csv files will be available with the results.
 
-In order to view the results again in the future, there is the main_read file. On this file, change the csv file name on metrics.scores on main() to show the results.
+In order to view the results again in the future, there is the **main_read.py** file. On this file, change the csv file name on **metrics.scores** on **main()** to show the results.
 
 # Folders and Files Description
 
