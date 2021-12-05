@@ -42,3 +42,10 @@ Here are the steps to perform experiments using this framework:
 After the experiments execution, the csv files will be available with the results.
 
 In order to view the results again in the future, there is the main_read file. On this file, change the csv file name on metrics.scores on main() to show the results.
+
+# Folders and Files Description
+
+The main framework folders and files are listed below:
+
+- classification_models: Folder with the classification models available for evaluation
+-- Models available: CNN, FaultNet, KNN, LR, MLP, Random Forest, SVM
